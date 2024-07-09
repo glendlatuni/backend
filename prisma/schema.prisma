@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model jadwal {
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  hari_Ibadah      String
+  waktu_Ibadah     String
+  tempat_ibadah    String
+  user_id          String?     @unique @db.ObjectId
+  user             user?       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  pemimpin_Ibadah  String
+  liturgi_Ibadah   String
+  deskripsi_Ibadah String
+  jumlah_hadir     Int         @default(0)
+  kehadiran        kehadiran[]
+}
+
+model user {
+  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
+  nama_lengkap        String
+  jenis_kelamin       String
+  tempat_lahir        String
+  tanggal_lahir       DateTime?
+  posisiDalamKeluarga String
+  kategoriIbadah      String
+  keluarga            keluarga    @relation(fields: [keluarga_id], references: [id], onDelete: Cascade)
+  keluarga_id         String      @db.ObjectId
+  lingkungan          Int
+  ksp                 String
+  alamat              String
+  nomor_hp            String
+  isMajelis           Boolean
+  liturgis            Boolean
+  jadwal              jadwal?
+  kehadiran           kehadiran[]
+}
+
+model keluarga {
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  nama_keluarga    String
+  anggota_keluarga user[]
+}
+
+model kehadiran {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      user     @relation(fields: [user_id], references: [id])
+  user_id   String   @db.ObjectId
+  jadwal    jadwal   @relation(fields: [jadwal_id], references: [id])
+  jadwal_id String   @db.ObjectId
+  tanggal   DateTime
+  status    String // Misalnya: "hadir", "tidak hadir", "belum konfirmasi"
+}
