@@ -1,8 +1,10 @@
 import express, { Express, Request, Response } from "express";
 
 import cors from "cors"; // Cross-Origin Resource Sharing
-
+const app: Express = express();
 import { PrismaClient } from "@prisma/client";
+
+
 
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
@@ -12,7 +14,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const app: Express = express();
+
 const port = process.env.PORT || 4000;
 
 app.use(cors());
@@ -23,7 +25,9 @@ app.get("/", (req: Request, res: Response) => {
   res.send("express + typescript");
 });
 
-// Create keluarga
+
+
+
 app.post("/create-keluarga", async (req: Request, res: Response) => {
   const { nama_keluarga } = req.body;
 
@@ -46,78 +50,8 @@ app.post("/create-keluarga", async (req: Request, res: Response) => {
   }
 });
 
-// Update keluarga
-// app.put("/update-keluarga/:id", async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const { keluargaData } = req.body;
 
-//   try {
-//     const updatedKeluarga = await prisma.keluarga.update({
-//       where: { id },
-//       data: keluargaData,
-//     });
 
-//     res.json(updatedKeluarga);
-//   } catch (error: any) {
-//     console.error("Error updating keluarga:", error);
-//     res
-//       .status(500)
-//       .json({ error: "Gagal memperbarui keluarga", details: error.message });
-//   }
-// });
-
-// Update Anggota Keluarga
-// app.put("/update-anggota-keluarga/:id", async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const { userData } = req.body;
-
-//   try {
-//     // Periksa apakah keluarga dengan id yang diberikan ada
-//     const keluarga = await prisma.keluarga.findUnique({
-//       where: { id },
-//     });
-
-//     if (!keluarga) {
-//       return res.status(404).json({ error: "Keluarga tidak ditemukan" });
-//     }
-
-//     // Periksa apakah user dengan id yang diberikan ada
-//     const user = await prisma.user.findUnique({
-//       where: { id: userData.id },
-//     });
-
-//     if (!user) {
-//       return res.status(404).json({ error: "User tidak ditemukan" });
-//     }
-
-//     // Update keluarga dengan menambahkan anggota baru
-//     const updatedAnggotaKeluarga = await prisma.keluarga.update({
-//       where: { id },
-//       data: {
-//         anggota_keluarga: {
-//           connect: { id: userData.id },
-//         },
-//       },
-//       include: {
-//         anggota_keluarga: true, // Ini akan menyertakan data anggota keluarga dalam respons
-//       },
-//     });
-
-//     res.json({
-//       message: "Anggota keluarga berhasil ditambahkan",
-//       keluarga: updatedAnggotaKeluarga,
-//     });
-//   } catch (error: any) {
-//     console.error("Error updating keluarga:", error);
-//     res
-//       .status(500)
-//       .json({ error: "Gagal memperbarui keluarga", details: error.message });
-//   }finally {
-//     await prisma.$disconnect();
-//   }
-// });
-
-// Delete keluarga
 app.delete("/delete-keluarga/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -159,30 +93,6 @@ app.get("/find-keluarga/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Find Anggota Keluarga
-
-app.get("/find-anggota-keluarga/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    const anggotaKeluarga = await prisma.keluarga.findUnique({
-      where: { id },
-      include: {
-        anggota_keluarga: true,
-      },
-    });
-    res.json(anggotaKeluarga);
-  } catch (error: any) {
-    console.error("Error finding anggota keluarga:", error);
-    res.status(500).json({
-      error: "Gagal menemukan anggota keluarga",
-      details: error.message,
-    });
-  } finally {
-    await prisma.$disconnect();
-  }
-});
-
-// find all keluarga
 
 app.get("/find-all-keluarga", async (req: Request, res: Response) => {
   try {
@@ -202,7 +112,44 @@ app.get("/find-all-keluarga", async (req: Request, res: Response) => {
   }
 });
 
-// Create New User
+
+app.post("/create-jadwal", async (req: Request, res: Response) => {
+  const { schedule } = req.body;
+
+  try {
+    const jadwal = await prisma.jadwal.create({
+      data: {
+        ...schedule,
+      },
+    });
+    res.json(jadwal);
+  } catch (error: any) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Gagal membuat  jadwal", details: error.message });
+  }
+});
+
+// find all jadwal
+
+app.get("/find-all-jadwal", async (req: Request, res: Response) => {
+  try {
+    const jadwal = await prisma.jadwal.findMany();
+    res.json(jadwal);
+  } catch (error: any) {
+    console.error("Error finding jadwal:", error);
+    res
+      .status(500)
+      .json({ error: "Gagal menemukan jadwal", details: error.message });
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+
+
+
 
 app.post("/create-user", async (req: Request, res: Response) => {
   const { user } = req.body;
@@ -212,8 +159,11 @@ app.post("/create-user", async (req: Request, res: Response) => {
   }
 
   try {
+
+
     const users = await prisma.user.create({
       data: {
+    
         ...user,
         keluarga: {
           connect: { id: user.keluarga },
@@ -311,6 +261,115 @@ app.get("/find-user/:id", async (req: Request, res: Response) => {
   }
 });
 
+
+
+
+
+// Update keluarga
+// app.put("/update-keluarga/:id", async (req: Request, res: Response) => {
+//   const { id } = req.params;
+//   const { keluargaData } = req.body;
+
+//   try {
+//     const updatedKeluarga = await prisma.keluarga.update({
+//       where: { id },
+//       data: keluargaData,
+//     });
+
+//     res.json(updatedKeluarga);
+//   } catch (error: any) {
+//     console.error("Error updating keluarga:", error);
+//     res
+//       .status(500)
+//       .json({ error: "Gagal memperbarui keluarga", details: error.message });
+//   }
+// });
+
+// Update Anggota Keluarga
+// app.put("/update-anggota-keluarga/:id", async (req: Request, res: Response) => {
+//   const { id } = req.params;
+//   const { userData } = req.body;
+
+//   try {
+//     // Periksa apakah keluarga dengan id yang diberikan ada
+//     const keluarga = await prisma.keluarga.findUnique({
+//       where: { id },
+//     });
+
+//     if (!keluarga) {
+//       return res.status(404).json({ error: "Keluarga tidak ditemukan" });
+//     }
+
+//     // Periksa apakah user dengan id yang diberikan ada
+//     const user = await prisma.user.findUnique({
+//       where: { id: userData.id },
+//     });
+
+//     if (!user) {
+//       return res.status(404).json({ error: "User tidak ditemukan" });
+//     }
+
+//     // Update keluarga dengan menambahkan anggota baru
+//     const updatedAnggotaKeluarga = await prisma.keluarga.update({
+//       where: { id },
+//       data: {
+//         anggota_keluarga: {
+//           connect: { id: userData.id },
+//         },
+//       },
+//       include: {
+//         anggota_keluarga: true, // Ini akan menyertakan data anggota keluarga dalam respons
+//       },
+//     });
+
+//     res.json({
+//       message: "Anggota keluarga berhasil ditambahkan",
+//       keluarga: updatedAnggotaKeluarga,
+//     });
+//   } catch (error: any) {
+//     console.error("Error updating keluarga:", error);
+//     res
+//       .status(500)
+//       .json({ error: "Gagal memperbarui keluarga", details: error.message });
+//   }finally {
+//     await prisma.$disconnect();
+//   }
+// });
+
+// Delete keluarga
+
+
+// Find Anggota Keluarga
+
+app.get("/find-anggota-keluarga/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const anggotaKeluarga = await prisma.keluarga.findUnique({
+      where: { id },
+      include: {
+        anggota_keluarga: true,
+      },
+    });
+    res.json(anggotaKeluarga);
+  } catch (error: any) {
+    console.error("Error finding anggota keluarga:", error);
+    res.status(500).json({
+      error: "Gagal menemukan anggota keluarga",
+      details: error.message,
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+// find all keluarga
+
+
+
+// Create New User
+
+
+
 //Count user
 
 app.get("/count-user", async (req: Request, res: Response) => {
@@ -343,39 +402,7 @@ app.get("/count-keluarga", async (req: Request, res: Response) => {
 
 // create jadwal
 
-app.post("/create-jadwal", async (req: Request, res: Response) => {
-  const { schedule } = req.body;
 
-  try {
-    const jadwal = await prisma.jadwal.create({
-      data: {
-        ...schedule,
-      },
-    });
-    res.json(jadwal);
-  } catch (error: any) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ error: "Gagal membuat  jadwal", details: error.message });
-  }
-});
-
-// find all jadwal
-
-app.get("/find-all-jadwal", async (req: Request, res: Response) => {
-  try {
-    const jadwal = await prisma.jadwal.findMany();
-    res.json(jadwal);
-  } catch (error: any) {
-    console.error("Error finding jadwal:", error);
-    res
-      .status(500)
-      .json({ error: "Gagal menemukan jadwal", details: error.message });
-  } finally {
-    await prisma.$disconnect();
-  }
-});
 
 app.listen(port, () => {
   console.log(`[server]: Server running at http://localhost:${port}`);

@@ -28,7 +28,7 @@ model jadwal {
 }
 
 model user {
-  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   nama_lengkap        String
   jenis_kelamin       String
   tempat_lahir        String
