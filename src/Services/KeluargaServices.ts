@@ -11,7 +11,11 @@ export class KeluargaService{
 
 
     async getKeluarga(): Promise<keluarga[]> {
-        return await prisma.keluarga.findMany();
+        return await prisma.keluarga.findMany({
+            include: {
+                anggota_keluarga: true
+            }
+        });
     }
 
     async getKeluargaById (id: string): Promise<keluarga | null> {

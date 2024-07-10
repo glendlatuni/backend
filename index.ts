@@ -1,6 +1,8 @@
 import express, { Express, Request, Response } from "express";
 
 import keluargaRoutes from "./src/Routes/KeluargaRoutes";
+import jemaatRoutes from "./src/Routes/JemaatRoutes";
+import countRoutes from "./src/Routes/CountRoutes";
 
 import cors from "cors"; // Cross-Origin Resource Sharing
 const app: Express = express();
@@ -31,6 +33,8 @@ app.get("/", (req: Request, res: Response) => {
 
 
 app.use("/keluarga", keluargaRoutes);
+app.use('/jemaat', jemaatRoutes);
+app.use("/count", countRoutes);
 
 
 
