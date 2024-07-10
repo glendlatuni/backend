@@ -255,6 +255,7 @@ app.put("/update-user/:id", async (req: Request, res: Response) => {
   }
 });
 
+
 // Delete user
 app.delete("/delete-user/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
