@@ -17,7 +17,6 @@ export class KeluargaService{
             }
         });
     }
-
     async getKeluargaById (id: string): Promise<keluarga | null> {
         return await prisma.keluarga.findUnique({ where: { id } });
     }

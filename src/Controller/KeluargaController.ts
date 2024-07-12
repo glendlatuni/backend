@@ -26,7 +26,7 @@ export class KeluargaController {
         try {
             const keluarga = await keluargaService.getKeluarga();
             res.status(200).json(keluarga);
-            console.log(`You have ${keluarga.length} keluarga`)
+
         } catch (error) {
             next(error);
         }

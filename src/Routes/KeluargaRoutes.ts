@@ -8,7 +8,7 @@ const keluargaController = new KeluargaController();
 
 
 router.post('/', keluargaController.createKeluarga);
-router.get ('/', keluargaController.getKeluarga);
+router.get ('/all', keluargaController.getKeluarga);
 router.get ('/:id', keluargaController.getKeluargaById);
 router.put ('/:id', keluargaController.updateKeluarga);
 router.delete ('/:id', keluargaController.deleteKeluarga);

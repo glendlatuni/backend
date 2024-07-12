@@ -1,6 +1,6 @@
 import  express  from "express";
 
-import { countController } from "../Controller//CountController";
+import { countController } from "../Controller/CountController";
 
 const router = express.Router();
 
