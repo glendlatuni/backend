@@ -6,7 +6,7 @@ const router = express.Router();
 
 const CountController = new countController();
 
-router.get ('/jemaat', CountController.getJemaatCount);
-router.get ('/keluarga', CountController.getKeluargaCount);
+router.get ('/member', CountController.getJemaatCount);
+router.get ('/family', CountController.getKeluargaCount);
 
 export default router

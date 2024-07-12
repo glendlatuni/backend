@@ -6,12 +6,16 @@ const prisma = new PrismaClient();
 
 export class countService{
 
+    // counting members
+
     async getJemaatCount(): Promise<number> {
-        return await prisma.jemaat.count();
+        return await prisma.members.count();
     }
 
+
+    // counting family 
     async getKeluargaCount(): Promise<number> {
-        return await prisma.keluarga.count();
+        return await prisma.family.count();
     }
 
 }

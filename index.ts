@@ -1,14 +1,14 @@
+import { errorHandler } from "./src/utils/errorHandler";
 import express, { Express, Request, Response } from "express";
 
-import keluargaRoutes from "./src/Routes/KeluargaRoutes";
-import jemaatRoutes from "./src/Routes/JemaatRoutes";
+import familyRoutes from "./src/Routes/FamilyRoutes";
+import memberRoutes from "./src/Routes/MemberRoutes";
 import countRoutes from "./src/Routes/CountRoutes";
+import scheduleRoutes from "./src/Routes/ScheduleRouter";
 
-import cors from "cors"; // Cross-Origin Resource Sharing
+import cors from "cors";
 const app: Express = express();
 import { PrismaClient } from "@prisma/client";
-
-
 
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
@@ -17,7 +17,6 @@ const prisma = new PrismaClient({
 import dotenv from "dotenv";
 
 dotenv.config();
-
 
 const port = process.env.PORT || 4000;
 
@@ -29,15 +28,12 @@ app.get("/", (req: Request, res: Response) => {
   res.send("express + typescript");
 });
 
-
-
-
-app.use("/keluarga", keluargaRoutes);
-app.use('/jemaat', jemaatRoutes);
+app.use("/family", familyRoutes);
+app.use("/member", memberRoutes);
 app.use("/count", countRoutes);
+app.use("/schedule", scheduleRoutes);
 
-
-
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`[server]: Server running at http://localhost:${port}`);

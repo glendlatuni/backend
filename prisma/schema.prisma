@@ -13,52 +13,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model jadwal {
-  id               String      @id @default(auto()) @map("_id") @db.ObjectId
-  hari_Ibadah      String
-  waktu_Ibadah     String
-  tempat_ibadah    String
-  user_id          String?     @unique @db.ObjectId
-  user             jemaat?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  pemimpin_Ibadah  String
-  liturgi_Ibadah   String
-  deskripsi_Ibadah String
-  jumlah_hadir     Int         @default(0)
-  kehadiran        kehadiran[]
+model Schedule {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  DateOfWorship String
+  TimeOfWorship String
+  Place         String
+  Members_id    String?     @unique @db.ObjectId
+  Members       Members?    @relation(fields: [Members_id], references: [id], onDelete: Cascade)
+  Leaders       String
+  Liturgos      String
+  Description   String
+  Attendees     Int         @default(0)
+  Attending     Attendees[]
 }
 
-model jemaat {
-  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
-  nama_lengkap        String
-  jenis_kelamin       String
-  tempat_lahir        String
-  tanggal_lahir       DateTime?
-  posisiDalamKeluarga String
-  kategoriIbadah      String
-  keluarga            keluarga    @relation(fields: [keluarga_id], references: [id], onDelete: Cascade)
-  keluarga_id         String      @db.ObjectId
-  lingkungan          Int
-  ksp                 String
-  alamat              String
-  nomor_hp            String
-  isMajelis           Boolean
-  liturgis            Boolean
-  jadwal              jadwal?
-  kehadiran           kehadiran[]
+model Members {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  FullName       String
+  Gender         String
+  BirthPlace     String
+  BirthDate      DateTime?
+  FamilyPosition String
+  Category       String
+  Family         Family      @relation(fields: [Family_id], references: [id], onDelete: Cascade)
+  Family_id      String      @db.ObjectId
+  Zones          Int
+  KSP            String
+  Address        String
+  PhoneNumber    String
+  User           User?       @relation(fields: [user_id], references: [id])
+  user_id        String?     @unique @db.ObjectId
+  IsLeaders      Boolean
+  IsLiturgos     Boolean
+  Schedule       Schedule?
+  Attendees      Attendees[]
+  profilePhoto   String?
 }
 
-model keluarga {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  nama_keluarga    String
-  anggota_keluarga jemaat[]
+model Family {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  FamilyName    String
+  FamilyMembers Members[] 
 }
 
-model kehadiran {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  user      jemaat   @relation(fields: [user_id], references: [id])
-  user_id   String   @db.ObjectId
-  jadwal    jadwal   @relation(fields: [jadwal_id], references: [id])
-  jadwal_id String   @db.ObjectId
-  tanggal   DateTime
-  status    String // Misalnya: "hadir", "tidak hadir", "belum konfirmasi"
+model Attendees {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  user        Members  @relation(fields: [user_id], references: [id])
+  user_id     String   @db.ObjectId
+  Schedule    Schedule @relation(fields: [Schedule_id], references: [id])
+  Schedule_id String   @db.ObjectId
+  Dates       DateTime
+  status      String
 }
+
+
+model User {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  email    String   @unique
+  password String
+  Member   Members? @relation
+}
+
