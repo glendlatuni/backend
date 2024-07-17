@@ -17,7 +17,7 @@ export class scheduleController {
     }
   }
 
-  async getSchedule(req: Request, res: Response, next: NextFunction) {
+  async getSchedule(_req: Request, res: Response, next: NextFunction) {
     try {
       const schedule = await ScheduleService.getSchedule();
       res.status(200).json(schedule);

@@ -28,6 +28,24 @@ export class membersService {
     });
   }
 
+
+  async getMemberBySearch(search: string): Promise<Members[]> {
+    return await prisma.members.findMany({
+      where: {
+        FullName: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        Family: true,
+        Schedule: true,
+        Attendees: true,
+      },
+    });
+  }
+
+
   async getMemberById(id: string): Promise<Members | null> {
     console.log(`Getting jemaat by ID: ${id}`);
     return await prisma.members.findUnique({ where: { id } });

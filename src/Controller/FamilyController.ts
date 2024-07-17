@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from "express";
 
 import { familyServices } from "../Services/FamilyServices";
 
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+
+
 
 const FamilyService = new familyServices();
 
@@ -22,7 +22,7 @@ export class familyControllers {
         }
     }
 
-    async getKeluarga(req: Request, res: Response, next: NextFunction) {
+    async getKeluarga(_req: Request, res: Response, next: NextFunction) {
         try {
             const Family = await FamilyService.getKeluarga();
             res.status(200).json(Family);
@@ -51,7 +51,7 @@ export class familyControllers {
             res.status(200).json({ message: `${Family?.FamilyName} has been updated`});
             console.log(`${Family?.FamilyName} has been updated`)
         } catch (error) {
-            
+            next(error); 
         }
     }
 

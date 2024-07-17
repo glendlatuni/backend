@@ -5,7 +5,7 @@ import { countService } from "../Services/CountServices";
 const CountService = new countService();
 
 export class countController {
-  async getJemaatCount(req: Request, res: Response, next: NextFunction) {
+  async getJemaatCount(_req: Request, res: Response, next: NextFunction) {
     try {
       const jemaatCount = await CountService.getJemaatCount();
       res.send({ jemaatCount });
@@ -14,7 +14,7 @@ export class countController {
     }
   }
 
-  async getKeluargaCount(req: Request, res: Response, next: NextFunction) {
+  async getKeluargaCount(_req: Request, res: Response, next: NextFunction) {
     try {
       const keluargaCount = await CountService.getKeluargaCount();
       res.send({ keluargaCount });

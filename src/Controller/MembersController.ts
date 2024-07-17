@@ -15,7 +15,7 @@ export class MembersControllers {
     }
   }
 
-  async getMembers(req: Request, res: Response, next: NextFunction) {
+  async getMembers(_req: Request, res: Response, next: NextFunction) {
     try {
       const member = await MemberServices.getMember();
       res.send(member);
