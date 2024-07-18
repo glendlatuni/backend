@@ -5,10 +5,10 @@ const router = express.Router();
 
 const memberControllers = new MembersControllers();
 
-router.post("/", memberControllers.createMembers);
-router.get("/all", memberControllers.getMembers);
-router.get("/:id", memberControllers.getMembersById);
-router.put("/:id", memberControllers.updateMembers);
-router.delete("/:id", memberControllers.deleteMembers);
+router.post("/", memberControllers.controllerCreateMember);
+router.get("/all", memberControllers.controllerGetMember);
+router.get("/:id", memberControllers.controllerGetMemberByID);
+router.put("/:id", memberControllers.controllerUpdateMember);
+router.delete("/:id", memberControllers.controllerDeleteMember);
 
 export default router;

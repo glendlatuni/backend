@@ -1,20 +1,18 @@
-import { scheduleController } from './../Controller/ScheduleController';
+import { scheduleController } from "./../Controller/ScheduleController";
 import express from "express";
 
 const router = express.Router();
 
 const ScheduleController = new scheduleController();
 
+router.post("/", ScheduleController.controllerCreateSchedule);
 
-router.post("/", ScheduleController.createSchedule);
+router.get("/all", ScheduleController.controllerGetSchedule);
 
-router.get("/all", ScheduleController.getSchedule);
+router.get("/:id", ScheduleController.controllerGetScheduleByMemberID);
 
-router.get("/:id", ScheduleController.getScheduleByMemberId);
+router.delete("/:id", ScheduleController.controllerDeleteSchedule);
 
-router.delete("/:id", ScheduleController.deleteSchedule);
+router.put("/:id", ScheduleController.controllerUpdateSchedule);
 
-router.put("/:id", ScheduleController.updateSchedule);
-
-
-export default router
+export default router;

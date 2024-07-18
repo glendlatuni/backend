@@ -5,7 +5,11 @@ import { membersService } from "../Services/MemberServices";
 const MemberServices = new membersService();
 
 export class MembersControllers {
-  async createMembers(req: Request, res: Response, next: NextFunction) {
+  async controllerCreateMember(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     const { data } = req.body;
     try {
       const member = await MemberServices.createMember(data);
@@ -15,7 +19,7 @@ export class MembersControllers {
     }
   }
 
-  async getMembers(_req: Request, res: Response, next: NextFunction) {
+  async controllerGetMember(_req: Request, res: Response, next: NextFunction) {
     try {
       const member = await MemberServices.getMember();
       res.send(member);
@@ -24,7 +28,11 @@ export class MembersControllers {
     }
   }
 
-  async getMembersById(req: Request, res: Response, next: NextFunction) {
+  async controllerGetMemberByID(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       console.log("Accessing getJemaatById endpoint");
       const member = await MemberServices.getMemberById(String(req.params.id));
@@ -34,7 +42,11 @@ export class MembersControllers {
     }
   }
 
-  async updateMembers(req: Request, res: Response, next: NextFunction) {
+  async controllerUpdateMember(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     const { data } = req.body;
     try {
       const member = await MemberServices.updateMember(
@@ -47,7 +59,11 @@ export class MembersControllers {
     }
   }
 
-  async deleteMembers(req: Request, res: Response, next: NextFunction) {
+  async controllerDeleteMember(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const members = await MemberServices.deleteMember(String(req.params.id));
       res.send(members);

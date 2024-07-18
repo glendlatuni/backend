@@ -6,10 +6,10 @@ const router = express.Router();
 
 const FamilyControllers = new familyControllers();
 
-router.post("/", FamilyControllers.createKeluarga);
-router.get("/all", FamilyControllers.getKeluarga);
-router.get("/:id", FamilyControllers.getKeluargaById);
-router.put("/:id", FamilyControllers.updateKeluarga);
-router.delete("/:id", FamilyControllers.deleteKeluarga);
+router.post("/", FamilyControllers.ControllerCreateFamily);
+router.get("/all", FamilyControllers.controllerGetFamily);
+router.get("/:id", FamilyControllers.controllerGetFamilyByID);
+router.put("/:id", FamilyControllers.controllerUpdateFamily);
+router.delete("/:id", FamilyControllers.controllerDeleteFamily);
 
 export default router;

@@ -5,23 +5,29 @@ import { countService } from "../Services/CountServices";
 const CountService = new countService();
 
 export class countController {
-  async getJemaatCount(_req: Request, res: Response, next: NextFunction) {
+  async controllerGetMemberCount(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const jemaatCount = await CountService.getJemaatCount();
+      const jemaatCount = await CountService.getMemberCount();
       res.send({ jemaatCount });
     } catch (error) {
       next(error);
     }
   }
 
-  async getKeluargaCount(_req: Request, res: Response, next: NextFunction) {
+  async controllerGetFamilyCount(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const keluargaCount = await CountService.getKeluargaCount();
+      const keluargaCount = await CountService.getFamilyCount();
       res.send({ keluargaCount });
     } catch (error) {
       next(error);
     }
   }
-
-  
 }

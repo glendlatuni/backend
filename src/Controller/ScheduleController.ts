@@ -5,7 +5,11 @@ import { scheduleServices } from "../Services/ScheduleServices";
 const ScheduleService = new scheduleServices();
 
 export class scheduleController {
-  async createSchedule(req: Request, res: Response, next: NextFunction) {
+  async controllerCreateSchedule(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const schedule = await ScheduleService.createSchedule(req.body);
 
@@ -17,7 +21,11 @@ export class scheduleController {
     }
   }
 
-  async getSchedule(_req: Request, res: Response, next: NextFunction) {
+  async controllerGetSchedule(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const schedule = await ScheduleService.getSchedule();
       res.status(200).json(schedule);
@@ -26,7 +34,11 @@ export class scheduleController {
     }
   }
 
-  async getScheduleByMemberId(req: Request, res: Response, next: NextFunction) {
+  async controllerGetScheduleByMemberID(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const schedule = await ScheduleService.getScheduleByMemberId(
         req.params.id
@@ -37,7 +49,11 @@ export class scheduleController {
     }
   }
 
-  async deleteSchedule(req: Request, res: Response, next: NextFunction) {
+  async controllerDeleteSchedule(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const schedule = await ScheduleService.deleteSchedule(req.params.id);
       res.status(200).json(schedule);
@@ -46,9 +62,11 @@ export class scheduleController {
     }
   }
 
-  async updateSchedule(req: Request, res: Response, next: NextFunction) {
-
-    
+  async controllerUpdateSchedule(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const schedule = await ScheduleService.updateSchedule(
         req.params.id,
@@ -59,6 +77,4 @@ export class scheduleController {
       next(error);
     }
   }
-
-
 }
