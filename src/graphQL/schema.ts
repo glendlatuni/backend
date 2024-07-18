@@ -82,9 +82,9 @@ export const typeDefs = gql`
 
   type Query {
     users: [User!]!
-    member: [Members!]!
+    queryGetMember: [Members!]!
     memberSearch(search: String): [Members!]!
-    family: [Family!]!
+    queryGetFamily: [Family!]!
     schedules: [Schedule!]!
     attendees: [Attendees!]!
   }

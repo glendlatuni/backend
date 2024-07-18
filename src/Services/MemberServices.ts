@@ -3,33 +3,34 @@ import { PrismaClient, Members } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export class membersService {
-  async createMember(data: Omit<Members, "id">): Promise<Members> {
+  async servicesCreateMember(data: Omit<Members, "id">): Promise<Members> {
     return await prisma.members.create({ data });
   }
 
-  async deleteMember(id: string): Promise<Members | null> {
+  async servicesDeleteMember(id: string): Promise<Members | null> {
     return await prisma.members.delete({ where: { id } });
   }
 
-  async updateMember(
+  async servicesUpdateMember(
     id: string,
     data: Partial<Members>
   ): Promise<Members | null> {
     return await prisma.members.update({ where: { id }, data });
   }
 
-  async getMember(): Promise<Members[]> {
+  async servicesGetMember(): Promise<Members[]> {
     return await prisma.members.findMany({
       include: {
         Family: true,
         Schedule: true,
         Attendees: true,
+        
+
       },
     });
   }
 
-
-  async getMemberBySearch(search: string): Promise<Members[]> {
+  async servicesGetMemberBySearch(search: string): Promise<Members[]> {
     return await prisma.members.findMany({
       where: {
         FullName: {
@@ -45,8 +46,7 @@ export class membersService {
     });
   }
 
-
-  async getMemberById(id: string): Promise<Members | null> {
+  async servicesGetMemberByID(id: string): Promise<Members | null> {
     console.log(`Getting jemaat by ID: ${id}`);
     return await prisma.members.findUnique({ where: { id } });
   }
