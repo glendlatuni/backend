@@ -1,3 +1,4 @@
+
 // src/schema.ts
 import { gql } from "apollo-server-express";
 
@@ -20,17 +21,64 @@ export const typeDefs = gql`
     Family: Family!
     Zones: Int!
     KSP: String!
+    IsLeaders: IsLeaders
     Address: String!
     PhoneNumber: String!
     User: User
-    IsLeaders: Boolean!
-    IsLiturgos: Boolean!
+    Leaders: Boolean!
+    Liturgos: Boolean!
     Schedule: Schedule
     profilePhoto: String
     Attendees: [Attendees!]!
   }
 
+  type Family {
+    id: ID!
+    FamilyName: String!
+    FamilyMembers: [Members!]!
+    IsLeaders: IsLeaders
+  }
+
+  type Schedule {
+    id: ID!
+    Category: String!
+    Date: String!
+    Day: String!
+    Month: String!
+    Years: String!
+    Time: String!
+    Address: String!
+    Member: Members
+    IsLeaders: IsLeaders
+    Liturgos: String!
+    Description: String!
+    Attendees: [Attendees!]
+  }
+
+  type IsLeaders {
+    id: ID!
+    Name: String!
+    Title: String!
+    Member: [Members!]!
+    Members_id: ID!
+    Schedule: [Schedule]
+  }
+
+  type Attendees {
+    id: ID!
+    Members: Members!
+    Schedule: Schedule!
+    Dates: String!
+    status: String!
+  }
+
+  input FamilyInput {
+    id: ID
+    FamilyName: String!
+  }
+
   input CreateMemberInput {
+    id: ID
     FullName: String!
     Gender: String!
     BirthPlace: String!
@@ -43,50 +91,63 @@ export const typeDefs = gql`
     Address: String!
     PhoneNumber: String!
     user_id: ID # Opsional, gunakan ID untuk relasi
-    IsLeaders: Boolean!
-    IsLiturgos: Boolean!
+    Leaders: Boolean!
+    Liturgos: Boolean!
     profilePhoto: String
   }
 
-  type Family {
-    id: ID!
-    FamilyName: String!
-    FamilyMembers: [Members!]!
+  input CreateIsLeadersInput {
+    Name: String!
+    Title: String!
+    Members_id: ID!
   }
 
-  input FamilyInput {
-    id: ID
-    FamilyName: String!
+  input memberUploadPhoto{
+    profilePhoto: String
   }
 
-  type Schedule {
-    id: ID!
-    DateOfWorship: String!
-    TimeOfWorship: String!
-    Place: String!
-    Members: Members
-    Leaders: String!
+  input createScheduleInput {
+    Category: String!
+    Date: String!
+    Day: String!
+    Month: String!
+    Years: String!
+    Time: String!
+    Address: String!
+    member_id: ID!
+    Leaders_id: ID!
     Liturgos: String!
     Description: String!
-    Attendees: Int!
-    Attending: [Attendees!]!
   }
 
-  type Attendees {
+  input createAttendees{
     id: ID!
-    user: Members!
-    Schedule: Schedule!
+    schedule_id: ID!
+    Members_ID: ID!
     Dates: String!
     status: String!
   }
 
   type Query {
+    # user section
     users: [User!]!
+    # family section
+    queryGetFamily: [Family!]!
+    queryGetFamilyByID(id: ID!): Family!
+    familySearch(search: String): [Family!]
+    # Sch Section
+    queryGetSchedule: [Schedule!]!
+    # member section
     queryGetMember: [Members!]!
     memberSearch(search: String): [Members!]!
-    queryGetFamily: [Family!]!
-    schedules: [Schedule!]!
-    attendees: [Attendees!]!
+    getMemberByID(id: ID!): Members
+    # att section
+    queryGetAttendees: [Attendees!]!
+
+    # leader section
+    queryGetLeaders: [IsLeaders!]!
+    queryGetLeadersByID(id: ID!): IsLeaders
+    leaderSearch(search: String): [IsLeaders!]
   }
 
   type Mutation {
@@ -97,15 +158,25 @@ export const typeDefs = gql`
     deleteUser(id: ID!): User!
 
     # Member Section
-    createMember(data: CreateMemberInput!): Members!
+    createMember(data: CreateMemberInput!): Members
+    updateMember(id: ID!, data: CreateMemberInput!): Members
+    deleteMember(id: ID!): Members
+    updateMemberPhoto(id: ID!, data: memberUploadPhoto!): Members
+
 
     # Schedule Section
+    createSchedule(data: createScheduleInput!): Schedule
 
-    
+    # Leader Section
+    createIsLeaders(data: CreateIsLeadersInput!): IsLeaders!
+
     # Family section
     getFamily(id: ID!): Family
     createFamily(data: FamilyInput!): Family
     deleteFamily(id: ID!): Family
     updateFamily(id: ID!, data: FamilyInput!): Family
+
+    # Attendees Section
+    createAttendees(data: createAttendees!): Attendees
   }
 `;

@@ -18,15 +18,18 @@ export class membersService {
     return await prisma.members.update({ where: { id }, data });
   }
 
+  async serviceUpdateMemberLeadersID(id: string, data: Partial<Members>): Promise<Members> {
+    return await prisma.members.update({ where: { id : id }, data });
+  }
+
   async servicesGetMember(): Promise<Members[]> {
     return await prisma.members.findMany({
       include: {
         Family: true,
+        Attendees : true,
+        IsLeaders : true,
         Schedule: true,
-        Attendees: true,
-        
-
-      },
+        },
     });
   }
 
@@ -42,12 +45,31 @@ export class membersService {
         Family: true,
         Schedule: true,
         Attendees: true,
+        IsLeaders: true,
       },
     });
   }
 
   async servicesGetMemberByID(id: string): Promise<Members | null> {
-    console.log(`Getting jemaat by ID: ${id}`);
-    return await prisma.members.findUnique({ where: { id } });
+    console.log(`Getting member by ID: ${id}`);
+    return await prisma.members.findUnique({ 
+      where: { id }, 
+      include :  {
+        Schedule : true
+      }
+    
+    });
   }
+
+
+  async avoidDuplicate(fullName:string, birthDate:Date): Promise<Members | null> {
+
+    return await prisma.members.findFirst({
+      where: {
+        FullName: fullName,
+        BirthDate: birthDate
+      }
+    })
+  }
+
 }

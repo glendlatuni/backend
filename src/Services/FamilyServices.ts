@@ -10,17 +10,17 @@ export class familyServices {
   async servicesGetFamily(): Promise<Family[]> {
     return await prisma.family.findMany({
       include: {
-        FamilyMembers: {
-          include: {
-            Family: true,
-            
-          },
-        },
+        FamilyMembers: true,
       },
     });
   }
   async servicesGetFamilyByID(id: string): Promise<Family | null> {
-    return await prisma.family.findUnique({ where: { id } });
+    return await prisma.family.findUnique({
+      where: { id },
+      include: {
+        FamilyMembers: true,
+      },
+    });
   }
 
   async servicesUpdateFamily(
@@ -33,4 +33,20 @@ export class familyServices {
   async servicesDeleteFamily(id: string): Promise<Family | null> {
     return await prisma.family.delete({ where: { id } });
   }
+
+  async servicesGetFamilyBySearch(search: string): Promise<Family[]> {
+    return await prisma.family.findMany({
+      where: {
+        FamilyName: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        FamilyMembers : true
+      },
+    });
+  }
+
+  
 }
