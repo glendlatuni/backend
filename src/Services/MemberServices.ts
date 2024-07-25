@@ -50,6 +50,24 @@ export class membersService {
     });
   }
 
+
+  async serviceGetMemberByKSP(search: string): Promise<Members[]> {
+    return await prisma.members.findMany({
+      where: {
+        KSP: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      include:{
+        Family: true,
+        Schedule: true,
+        Attendees: true,
+        IsLeaders: true,
+      }
+    })
+  }
+
   async servicesGetMemberByID(id: string): Promise<Members | null> {
     console.log(`Getting member by ID: ${id}`);
     return await prisma.members.findUnique({ 

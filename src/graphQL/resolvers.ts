@@ -20,6 +20,10 @@ export const resolvers = {
       return await MemberServices.servicesGetMemberBySearch(args.search);
     },
 
+    queryGetKSP: async (_: any, args: { search: string }) => {
+      return await MemberServices.serviceGetMemberByKSP(args.search);
+    },
+
     getMemberByID: async (_: any, args: { id: string }) => {
       return await MemberServices.servicesGetMemberByID(args.id);
     },
@@ -38,8 +42,6 @@ export const resolvers = {
       return await ScheduleServices.serviceGetSchedule();
     },
 
-
-
     // Leader query section
 
     queryGetLeaders: async () => {
@@ -50,8 +52,6 @@ export const resolvers = {
       return await LeaderServices.serviceGetLeaderByID(args.id);
     },
 
-    
-
     // attendees section
 
     queryGetAttendees: async () => {
@@ -61,7 +61,7 @@ export const resolvers = {
   // Mutations section
 
   Mutation: {
-    // Member Section
+    // Member mutation Section
     createMember: async (_: any, args: any) => {
       // block for avoid duplicate
 
@@ -119,7 +119,18 @@ export const resolvers = {
       const newLeader = await LeaderServices.serviceCreateLeader(args.data);
       return newLeader;
     },
-  },
 
-  // att section
+    // Attendees Section
+
+    createAttendees: async (_: any, args: any) => {
+      return await AttendeesServices.serviceCreateAttendees(args.data);
+    },
+
+    updateAttendees: async (_: any, args: { id: string; data: any }) => {
+      return await AttendeesServices.addMembersToAttendees(
+        args.id,
+        args.data.Members_ID
+      );
+    },
+  },
 };

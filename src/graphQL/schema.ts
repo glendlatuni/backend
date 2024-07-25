@@ -66,10 +66,10 @@ export const typeDefs = gql`
 
   type Attendees {
     id: ID!
-    Members: Members!
+    Members: [Members]!
     Schedule: Schedule!
     Dates: String!
-    status: String!
+    Status: String!
   }
 
   input FamilyInput {
@@ -93,7 +93,7 @@ export const typeDefs = gql`
     user_id: ID # Opsional, gunakan ID untuk relasi
     Leaders: Boolean!
     Liturgos: Boolean!
-    profilePhoto: String
+    ProfilePhoto: String
   }
 
   input CreateIsLeadersInput {
@@ -121,12 +121,17 @@ export const typeDefs = gql`
   }
 
   input createAttendees{
-    id: ID!
-    schedule_id: ID!
-    Members_ID: ID!
+    Schedule_id: ID!
+    Members_ID: [ID!]!
     Dates: String!
-    status: String!
+    Status: String!
   }
+
+input updateAttendees{
+  Members_ID: [ID!]! 
+}
+
+
 
   type Query {
     # user section
@@ -140,7 +145,9 @@ export const typeDefs = gql`
     # member section
     queryGetMember: [Members!]!
     memberSearch(search: String): [Members!]!
+    queryGetKSP(search: String): [Members!]
     getMemberByID(id: ID!): Members
+
     # att section
     queryGetAttendees: [Attendees!]!
 
@@ -178,5 +185,6 @@ export const typeDefs = gql`
 
     # Attendees Section
     createAttendees(data: createAttendees!): Attendees
+    updateAttendees(id: ID!, data: updateAttendees!): Attendees
   }
 `;
