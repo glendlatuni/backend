@@ -113,6 +113,14 @@ export const resolvers = {
       return await ScheduleServices.serviceCreateSchedule(args.data);
     },
 
+    updateSchedule: async (_: any, args: { id: string; data: any }) => {
+      return await ScheduleServices.serviceUpdateSchedule(args.id, args.data);
+    },
+
+    deleteSchedule: async (_: any, args: { id: string }) => {
+      return await ScheduleServices.serviceDeleteSchedule(args.id);
+    },
+
     // Leader Section
 
     createIsLeaders: async (_: any, args: any) => {
@@ -132,5 +140,13 @@ export const resolvers = {
         args.data.Members_ID
       );
     },
+
+    updateRealAttendees: async (_: any, args: { id: string; data: any }) => {
+      return await AttendeesServices.serviceAddRealAttendees(
+        args.id,
+        args.data
+      );
+    },
+
   },
 };

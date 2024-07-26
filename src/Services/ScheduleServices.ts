@@ -1,75 +1,100 @@
-import { PrismaClient, Schedule, Members, } from "@prisma/client";
+import { PrismaClient, Schedule, Members } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export class scheduleServices {
-
-  
   async serviceCreateSchedule(data: Omit<Schedule, "id">): Promise<Schedule> {
-    // Validasi IsLeader
-    if (data.Leaders_id) {
-      const isLeader = await prisma.isLeaders.findUnique({
-        where: { id: data.Leaders_id },
-      });
+    try {
+      // Validasi IsLeader
+      if (data.Leaders_id) {
+        const isLeader = await prisma.isLeaders.findUnique({
+          where: { id: data.Leaders_id },
+        });
 
-      if (!isLeader) {
-        throw new Error("Invalid IsLeader ID. Leader not found.");
+        if (!isLeader) {
+          throw new Error("Invalid IsLeader ID. Leader not found.");
+        }
       }
+
+      // Persiapkan data untuk membuat schedule
+      const scheduleData: any = {
+        Category: data.Category,
+        Address: data.Address,
+        Liturgos: data.Liturgos,
+        Date: data.Date,
+        Day: data.Day,
+        Month: data.Month,
+        Years: data.Years,
+        Time: data.Time,
+        Description: data.Description,
+        Leaders_id: data.Leaders_id,
+      };
+
+      // Jika member_id ada, tambahkan ke scheduleData
+      if (data.Member_id) {
+        scheduleData.member_id = data.Member_id;
+      }
+
+      // Buat schedule
+      return await prisma.schedule.create({
+        data: scheduleData,
+      });
+    } catch (error) {
+      console.error("Error in serviceCreateSchedule:", error);
+      throw error;
     }
-
-    // Persiapkan data untuk membuat schedule
-    const scheduleData: any = {
-      Category: data.Category,
-      Address: data.Address,
-      Liturgos: data.Liturgos,
-      Date: data.Date,
-      Day: data.Day,
-      Month: data.Month,
-      Years: data.Years,
-      Time: data.Time,
-      Description: data.Description,
-      Leaders_id: data.Leaders_id,
-    };
-
-    // Jika member_id ada, tambahkan ke scheduleData
-    if (data.Member_id) {
-      scheduleData.member_id = data.Member_id;
-    }
-
-    // Buat schedule
-    return await prisma.schedule.create({
-      data: scheduleData,
-    });
   }
 
-
-
   async serviceGetSchedule(): Promise<Schedule[]> {
-    return await prisma.schedule.findMany({
-      include: {
-        IsLeaders: true,
-        Member: true,
-      },
-    });
+    try {
+      return await prisma.schedule.findMany({
+        include: {
+          IsLeaders: true,
+          Member: {
+            include: {
+              Family: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Error in serviceGetSchedule:", error);
+      throw error;
+    }
   }
 
   async serviceGetScheduleByID(id: string): Promise<Members | null> {
-    return await prisma.members.findFirst({
-      where: { id: id },
-      include: {
-        Schedule: true,
-      },
-    });
+    try {
+      return await prisma.members.findFirst({
+        where: { id: id },
+        include: {
+          Schedule: true,
+        },
+      });
+    } catch (error) {
+      console.error("Error in serviceGetScheduleByID:", error);
+      throw error;
+    }
   }
 
   async serviceDeleteSchedule(id: string): Promise<Schedule | null> {
-    return await prisma.schedule.delete({ where: { id } });
+    try {
+      return await prisma.schedule.delete({ where: { id } });
+    } catch (error) {
+      console.error("Error in serviceDeleteSchedule:", error);
+      throw error;
+    }
   }
 
   async serviceUpdateSchedule(
     id: string,
     data: Partial<Schedule>
   ): Promise<Schedule | null> {
-    return await prisma.schedule.update({ where: { id }, data });
+    try {
+      return await prisma.schedule.update({ where: { id }, data });
+    } catch (error) {
+      console.error("Error in serviceUpdateSchedule:", error);
+      throw error;
+    }
   }
 }

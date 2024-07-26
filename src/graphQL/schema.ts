@@ -18,7 +18,7 @@ export const typeDefs = gql`
     BirthDate: String
     FamilyPosition: String!
     Category: String!
-    Family: Family!
+    Family: Family
     Zones: Int!
     KSP: String!
     IsLeaders: IsLeaders
@@ -70,6 +70,10 @@ export const typeDefs = gql`
     Schedule: Schedule!
     Dates: String!
     Status: String!
+    Man: Int
+    Woman: Int
+    Kids: Int
+    Total: Int
   }
 
   input FamilyInput {
@@ -114,7 +118,7 @@ export const typeDefs = gql`
     Years: String!
     Time: String!
     Address: String!
-    member_id: ID!
+    Member_id: ID!
     Leaders_id: ID!
     Liturgos: String!
     Description: String!
@@ -131,6 +135,14 @@ input updateAttendees{
   Members_ID: [ID!]! 
 }
 
+input updateRealAttendees{
+  Man: Int!
+  Woman: Int!
+  Kids: Int!
+  Total: Int!
+}
+
+
 
 
   type Query {
@@ -141,6 +153,7 @@ input updateAttendees{
     queryGetFamilyByID(id: ID!): Family!
     familySearch(search: String): [Family!]
     # Sch Section
+    queryGetScheduleByID(id: ID!): Schedule
     queryGetSchedule: [Schedule!]!
     # member section
     queryGetMember: [Members!]!
@@ -173,6 +186,8 @@ input updateAttendees{
 
     # Schedule Section
     createSchedule(data: createScheduleInput!): Schedule
+    updateSchedule(id: ID!, data: createScheduleInput!): Schedule
+    deleteSchedule(id: ID!): Schedule
 
     # Leader Section
     createIsLeaders(data: CreateIsLeadersInput!): IsLeaders!
@@ -186,5 +201,7 @@ input updateAttendees{
     # Attendees Section
     createAttendees(data: createAttendees!): Attendees
     updateAttendees(id: ID!, data: updateAttendees!): Attendees
+
+    updateRealAttendees(id: ID!, data: updateRealAttendees!): Attendees
   }
 `;

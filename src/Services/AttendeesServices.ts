@@ -41,6 +41,12 @@ export class attendeesServices {
     return await prisma.attendees.delete({ where: { id } });
   }
 
+async serviceAddRealAttendees(id: string, data: Partial<Attendees>) : Promise<Attendees | null> {
+    return await prisma.attendees.update({
+        where: {id : id},
+        data: data
+    })
+}
 async addMembersToAttendees(id: string, membersIds : string[]): Promise<any>{
     try {
         const attendees = await prisma.attendees.findUnique({
