@@ -37,6 +37,14 @@ export const resolvers = {
       return await FamilyServices.servicesGetFamilyByID(args.id);
     },
 
+    familySearch: async (_: any, args: { search: string }) => {
+      return await FamilyServices.servicesGetFamilyBySearch(args.search);
+    },
+
+    querySearchFamilyByKSP: async (_: any, args: { search: string }) => {
+      return await FamilyServices.servicesGetFamilyByKSP(args.search);
+    },
+
     // Schedule query section
     queryGetSchedule: async () => {
       return await ScheduleServices.serviceGetSchedule();
@@ -51,6 +59,8 @@ export const resolvers = {
     queryGetLeadersByID: async (_: any, args: { id: string }) => {
       return await LeaderServices.serviceGetLeaderByID(args.id);
     },
+
+
 
     // attendees section
 
@@ -126,6 +136,18 @@ export const resolvers = {
     createIsLeaders: async (_: any, args: any) => {
       const newLeader = await LeaderServices.serviceCreateLeader(args.data);
       return newLeader;
+    },
+
+    updateIsLeaders: async (_: any, args: { id: string; data: any }) => {
+      return await LeaderServices.serviceUpdateLeaderByID(args.id, args.data);
+    },
+
+    deleteIsLeaders: async (_: any, args: { id: string }) => {
+      return await LeaderServices.serviceDeleteLeaderByID(args.id);
+    },
+
+    leaderOnDuty: async (_: any, args: { id: string; data: any }) => {
+      return await LeaderServices.serviceUpdateLeaderByID(args.id, args.data);
     },
 
     // Attendees Section

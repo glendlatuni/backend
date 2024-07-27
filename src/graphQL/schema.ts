@@ -62,6 +62,7 @@ export const typeDefs = gql`
     Member: [Members!]!
     Members_id: ID!
     Schedule: [Schedule]
+    onDuty: Boolean
   }
 
   type Attendees {
@@ -142,6 +143,10 @@ input updateRealAttendees{
   Total: Int!
 }
 
+input leaderOnDuty{
+  onDuty: Boolean!
+}
+
 
 
 
@@ -152,6 +157,7 @@ input updateRealAttendees{
     queryGetFamily: [Family!]!
     queryGetFamilyByID(id: ID!): Family!
     familySearch(search: String): [Family!]
+    querySearchFamilyByKSP(search: String): [Family!]
     # Sch Section
     queryGetScheduleByID(id: ID!): Schedule
     queryGetSchedule: [Schedule!]!
@@ -191,6 +197,11 @@ input updateRealAttendees{
 
     # Leader Section
     createIsLeaders(data: CreateIsLeadersInput!): IsLeaders!
+    updateIsLeaders(id: ID!, data: CreateIsLeadersInput!): IsLeaders
+    deleteIsLeaders(id: ID!): IsLeaders
+
+    leaderOnDuty(id: ID!, data: leaderOnDuty!): IsLeaders
+
 
     # Family section
     getFamily(id: ID!): Family

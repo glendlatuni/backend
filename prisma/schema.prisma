@@ -20,6 +20,7 @@ model IsLeaders {
   Member     Members?   @relation("MemberLeader", fields: [Members_id], references: [id], onDelete: SetNull)
   Members_id String?    @unique @db.ObjectId
   Schedule   Schedule[]
+  onDuty     Boolean @default(true)
 }
 
 model Schedule {

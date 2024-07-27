@@ -5,16 +5,20 @@ const prisma = new PrismaClient();
 export class scheduleServices {
   async serviceCreateSchedule(data: Omit<Schedule, "id">): Promise<Schedule> {
     try {
-      // Validasi IsLeader
-      if (data.Leaders_id) {
-        const isLeader = await prisma.isLeaders.findUnique({
-          where: { id: data.Leaders_id },
-        });
 
-        if (!isLeader) {
-          throw new Error("Invalid IsLeader ID. Leader not found.");
+      const onDuty = await prisma.isLeaders.findUnique({
+        where: { id: data.Leaders_id },
+        select: {
+          id: true,
+          onDuty: true
         }
-      }
+      })
+
+
+      if(!onDuty) throw new Error('invalid leaders ID or not found')
+
+      if(!onDuty.onDuty) throw new Error('Leader not on duty')
+
 
       // Persiapkan data untuk membuat schedule
       const scheduleData: any = {
@@ -32,7 +36,7 @@ export class scheduleServices {
 
       // Jika member_id ada, tambahkan ke scheduleData
       if (data.Member_id) {
-        scheduleData.member_id = data.Member_id;
+        scheduleData.Member_id = data.Member_id;
       }
 
       // Buat schedule
@@ -62,6 +66,9 @@ export class scheduleServices {
       throw error;
     }
   }
+
+
+
 
   async serviceGetScheduleByID(id: string): Promise<Members | null> {
     try {
