@@ -13,64 +13,96 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model IsLeaders {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  Name       String
+  Title      String // sym pnt pdt
+  Member     Members?   @relation("MemberLeader", fields: [Members_id], references: [id], onDelete: SetNull)
+  Members_id String?    @unique @db.ObjectId
+  Schedule   Schedule[]
+  onDuty     Boolean @default(true)
+}
+
 model Schedule {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  DateOfWorship String
-  TimeOfWorship String
-  Place         String
-  Members_id    String?     @unique @db.ObjectId
-  Members       Members?    @relation(fields: [Members_id], references: [id], onDelete: Cascade)
-  Leaders       String
-  Liturgos      String
-  Description   String
-  Attendees     Int         @default(0)
-  Attending     Attendees[]
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  Category    String
+  Date        DateTime
+  Day         String
+  Month       String
+  Years       String
+  Time        String
+  Address     String
+  Member      Members?      @relation(fields: [Member_id], references: [id], onDelete: Cascade)
+  Member_id   String?       @db.ObjectId
+  IsLeaders   IsLeaders     @relation(fields: [Leaders_id], references: [id])
+  Leaders_id  String        @db.ObjectId
+  Liturgos    String
+  Description String
+  Attendees   Attendees[]
+  UploadPhoto UploadPhoto[]
 }
 
 model Members {
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
   FullName       String
   Gender         String
   BirthPlace     String
-  BirthDate      DateTime?
+  BirthDate      DateTime
   FamilyPosition String
   Category       String
-  Family         Family      @relation(fields: [Family_id], references: [id], onDelete: Cascade)
-  Family_id      String      @db.ObjectId
+  Family         Family        @relation(fields: [Family_id], references: [id], onDelete: Cascade)
+  Family_id      String        @db.ObjectId
   Zones          Int
   KSP            String
   Address        String
   PhoneNumber    String
-  User           User?       @relation(fields: [user_id], references: [id])
-  user_id        String?     @unique @db.ObjectId
-  IsLeaders      Boolean
-  IsLiturgos     Boolean
-  Schedule       Schedule?
-  Attendees      Attendees[]
-  profilePhoto   String?
+  User           User?         @relation(fields: [User_id], references: [id])
+  User_id        String?       @unique @db.ObjectId
+  IsLeaders      IsLeaders?    @relation("MemberLeader")
+  Leaders        Boolean
+  Liturgos       Boolean
+  Schedule       Schedule[]
+  Attendees      Attendees[]   @relation(fields: [Attendees_id], references: [id])
+  Attendees_id   String[]      @db.ObjectId
+  ProfilePhoto   String?
+  UploadPhoto    UploadPhoto[]
 }
 
 model Family {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   FamilyName    String
-  FamilyMembers Members[] 
+  FamilyMembers Members[]
 }
 
 model Attendees {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  user        Members  @relation(fields: [user_id], references: [id])
-  user_id     String   @db.ObjectId
-  Schedule    Schedule @relation(fields: [Schedule_id], references: [id])
-  Schedule_id String   @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  Schedule    Schedule  @relation(fields: [Schedule_id], references: [id], onDelete: Cascade)
+  Schedule_id String    @unique @db.ObjectId
+  Members     Members[] @relation(fields: [Members_ID], references: [id])
+  Members_ID  String[]  @db.ObjectId
   Dates       DateTime
-  status      String
+  Man         Int?
+  Woman       Int?
+  Kids        Int?
+  Total       Int?
 }
-
 
 model User {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  email    String   @unique
-  password String
-  Member   Members? @relation
+  Email    String   @unique
+  Password String
+  Member   Members?
 }
 
+model UploadPhoto {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  CreatedAt     DateTime @default(now())
+  UploadedPhoto String[]
+  Description   String
+
+  Schedule    Schedule @relation(fields: [Schedule_id], references: [id], onDelete: Cascade)
+  Schedule_id String   @db.ObjectId
+
+  Members    Members @relation(fields: [Members_id], references: [id], onDelete: Cascade)
+  Members_id String  @db.ObjectId
+}
