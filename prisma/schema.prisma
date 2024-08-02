@@ -20,7 +20,8 @@ model IsLeaders {
   Member     Members?   @relation("MemberLeader", fields: [Members_id], references: [id], onDelete: SetNull)
   Members_id String?    @unique @db.ObjectId
   Schedule   Schedule[]
-  onDuty     Boolean @default(true)
+  onDuty     Boolean    @default(true)
+  Admin      Boolean    @default(false)
 }
 
 model Schedule {
@@ -56,8 +57,7 @@ model Members {
   KSP            String
   Address        String
   PhoneNumber    String
-  User           User?         @relation(fields: [User_id], references: [id])
-  User_id        String?       @unique @db.ObjectId
+  User           User?
   IsLeaders      IsLeaders?    @relation("MemberLeader")
   Leaders        Boolean
   Liturgos       Boolean
@@ -66,6 +66,7 @@ model Members {
   Attendees_id   String[]      @db.ObjectId
   ProfilePhoto   String?
   UploadPhoto    UploadPhoto[]
+  Admin          Boolean       @default(false)
 }
 
 model Family {
@@ -88,10 +89,11 @@ model Attendees {
 }
 
 model User {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  Email    String   @unique
-  Password String
-  Member   Members?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  Email     String   @unique
+  Password  String
+  Member    Members? @relation(fields: [Member_id], references: [id])
+  Member_id String?  @unique @db.ObjectId
 }
 
 model UploadPhoto {

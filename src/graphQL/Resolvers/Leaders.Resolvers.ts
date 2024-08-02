@@ -30,5 +30,9 @@ export const LeaderResolvers = {
     leaderOnDuty: async (_: any, args: { id: string; data: any }) => {
       return await LeaderServices.serviceUpdateLeaderByID(args.id, args.data);
     },
+
+    updateAdmin: async (_: any, args: { id: string; data: any }) => {
+      return await LeaderServices.serviceUpdateLeaderByID(args.id, args.data);
+    },
   },
 };

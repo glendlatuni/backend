@@ -1,3 +1,5 @@
+
+// 
 // src/index.ts
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -14,6 +16,8 @@ app.use(express.json());
 const server = new ApolloServer({
   typeDefs: margeTypedef,
   resolvers: mergeResolvers,
+  
+  
 });
 
 // Memulai server Apollo

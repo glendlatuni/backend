@@ -1,23 +1,44 @@
-import { mergeResolvers } from "@graphql-tools/merge"
-import { MemberResolvers } from "./Member.Resolvers"
-import { AttendeesResolvers } from "./Attendees.Resolvers"
-import { LeaderResolvers } from "./Leaders.Resolvers"
-import { ScheduleResolvers } from "./Schedule.Resolvers"
-import { FamilyResolvers } from "./Family.Resolvers"
+// import { mergeResolvers } from "@graphql-tools/merge"
+import { MemberResolvers } from "./Member.Resolvers";
+import { AttendeesResolvers } from "./Attendees.Resolvers";
+import { LeaderResolvers } from "./Leaders.Resolvers";
+import { ScheduleResolvers } from "./Schedule.Resolvers";
+import { FamilyResolvers } from "./Family.Resolvers";
+import { AuthResolvers } from "./AuthResolvers";
 
 
+const margeResolvers = {
+  Query: {
+    ...MemberResolvers.Query,
+    ...AttendeesResolvers.Query,
+    ...FamilyResolvers.Query,
+    ...LeaderResolvers.Query,
+    ...ScheduleResolvers.Query,
+  
+  },
 
-const margeResolvers: any = mergeResolvers([
-    MemberResolvers,
-    
-    AttendeesResolvers,
+  Mutation: {
+    ...MemberResolvers.Mutation,
+    ...AttendeesResolvers.Mutation,
+    ...LeaderResolvers.Mutation,
+    ...ScheduleResolvers.Mutation,
+    ...FamilyResolvers.Mutation,
+    ...AuthResolvers.Mutation,
+  },
+};
 
-    LeaderResolvers,
+// const margeResolvers: any = mergeResolvers([
+//     MemberResolvers,
 
-    ScheduleResolvers,
+//     AttendeesResolvers,
 
-    FamilyResolvers
-])
+//     LeaderResolvers,
 
-export default margeResolvers
+//     ScheduleResolvers,
 
+//     FamilyResolvers,
+
+//     AuthResolvers
+// ])
+
+export default margeResolvers;

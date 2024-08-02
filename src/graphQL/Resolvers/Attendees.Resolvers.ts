@@ -21,7 +21,7 @@ export const AttendeesResolvers = {
       updateAttendees: async (_: any, args: { id: string; data: any }) => {
         return await AttendeesServices.addMembersToAttendees(
           args.id,
-          args.data.Members_ID
+          args.data.Members_Id
         );
       },
   

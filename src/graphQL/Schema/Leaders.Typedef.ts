@@ -9,6 +9,7 @@ export const leadersTypedef = gql`
     Members_id: ID!
     Schedule: [Schedule]
     onDuty: Boolean
+    Admin: Boolean
   }
 
   input CreateIsLeadersInput {
@@ -20,6 +21,10 @@ export const leadersTypedef = gql`
   
 input leaderOnDuty{
   onDuty: Boolean!
+}
+
+input updateAdmin{
+  Admin: Boolean!
 }
 
 
@@ -35,5 +40,6 @@ input leaderOnDuty{
     updateIsLeaders(id: ID!, data: CreateIsLeadersInput!): IsLeaders
     deleteIsLeaders(id: ID!): IsLeaders
     leaderOnDuty(id: ID!, data: leaderOnDuty!): IsLeaders
+    updateAdmin(id: ID!, data: updateAdmin!): IsLeaders
   }
 `;

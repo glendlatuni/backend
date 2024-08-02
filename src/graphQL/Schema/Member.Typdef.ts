@@ -21,6 +21,7 @@ export const memberTypedef = gql`
     Schedule: Schedule
     profilePhoto: String
     Attendees: [Attendees!]!
+    Admin: Boolean
   }
 
   input CreateMemberInput {
@@ -40,14 +41,21 @@ export const memberTypedef = gql`
     Leaders: Boolean!
     Liturgos: Boolean!
     ProfilePhoto: String
+    Admin: Boolean
   }
 
   input memberUploadPhoto {
     profilePhoto: String
   }
 
+  input updateAdmin {
+    Admin: Boolean!
+  }
+
+
+
   type Query {
-    queryGetMember: [Members!]!
+    queryGetMember: [Members]
     memberSearch(search: String): [Members!]!
     queryGetKSP(search: String): [Members!]
     getMemberByID(id: ID!): Members
@@ -58,5 +66,6 @@ export const memberTypedef = gql`
     updateMember(id: ID!, data: CreateMemberInput!): Members
     deleteMember(id: ID!): Members
     updateMemberPhoto(id: ID!, data: memberUploadPhoto!): Members
+    updateAdminMemberRole(id: ID!, data: updateAdmin!): Members
   }
 `;

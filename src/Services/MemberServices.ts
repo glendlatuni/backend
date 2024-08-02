@@ -32,6 +32,7 @@ export class membersService {
         Attendees : true,
         IsLeaders : true,
         Schedule: true,
+        User: true,
         },
     });
   }
@@ -84,6 +85,7 @@ export class membersService {
     
     });
   }
+
 
 
   // avoid duplicate

@@ -58,6 +58,12 @@ export const MemberResolvers = {
           updateMemberPhoto: async (_: any, args: any) => {
             return await MemberServices.servicesUpdateMember(args.id, args.data);
           },
+
+          updateAdminMemberRole: async (_: any, args: any) => {
+            return await MemberServices.servicesUpdateMember(args.id, args.data);
+          },
+
+          
     }
 
 
