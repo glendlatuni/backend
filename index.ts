@@ -1,6 +1,6 @@
+import { AuthServices } from "./src/Services/AuthServices";
+import { authMiddleware } from "./src/utils/AuthMiddleware";
 
-// 
-// src/index.ts
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import margeTypedef from "./src/graphQL/Schema/index";
@@ -12,12 +12,23 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
+app.use(authMiddleware);
 
 const server = new ApolloServer({
   typeDefs: margeTypedef,
   resolvers: mergeResolvers,
-  
-  
+  context: ({ req }) => {
+
+    try {
+      
+      return {
+        user: (req as any).user,
+        AuthServices,
+      };
+    } catch (error) {
+      return { user: null };
+    }
+  },
 });
 
 // Memulai server Apollo

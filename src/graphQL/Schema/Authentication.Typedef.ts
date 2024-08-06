@@ -16,17 +16,12 @@ export const AuthenticationtypeDefs = gql`
 
   type Query {
     users: [User!]!
+    getUserByID(id:ID!): User!
   }
 
-  input UserInput {
-    id: ID
-    Email: String!
-    Password: String!
-    Member_id: String!
-  }
 
   type Mutation {
-    login(Email: String!, Password: String!): AuthPayload
+    login(Email: String!, Password: String!): AuthPayload!
 
     register(Email: String!, Password: String!, Member_Id: String!): AuthPayload!
   }

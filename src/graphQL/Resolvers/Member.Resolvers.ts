@@ -1,70 +1,163 @@
-
 import { membersService } from "../../Services/MemberServices";
-
+import { AuthenticationError, UserInputError } from "apollo-server-core";
 const MemberServices = new membersService();
 
-
+interface User {
+  Member?: {
+    Admin?: boolean;
+    IsLeaders?: {
+      Admin?: boolean;
+    };
+  };
+}
 
 export const MemberResolvers = {
-
-    Query:{
-        
+  Query: {
     queryGetMember: async () => {
-        return await MemberServices.servicesGetMember();
-      },
-      memberSearch: async (_: any, args: { search: string }) => {
-        return await MemberServices.servicesGetMemberBySearch(args.search);
-      },
-  
-      queryGetKSP: async (_: any, args: { search: string }) => {
-        return await MemberServices.serviceGetMemberByKSP(args.search);
-      },
-  
-      getMemberByID: async (_: any, args: { id: string }) => {
-        return await MemberServices.servicesGetMemberByID(args.id);
-      },
+      return await MemberServices.servicesGetMember();
+    },
+    memberSearch: async (_: any, args: { search: string }) => {
+      return await MemberServices.servicesGetMemberBySearch(args.search);
     },
 
-    Mutation:{
+    queryGetKSP: async (_: any, args: { search: string }) => {
+      return await MemberServices.serviceGetMemberByKSP(args.search);
+    },
 
-        createMember: async (_: any, args: any) => {
-            // block for avoid duplicate
-      
-            try {
-              const existingMember = await MemberServices.avoidDuplicate(
-                args.data.FullName,
-                args.data.BirthDate
-              );
-      
-              if (existingMember) {
-                console.log("Member already exists");
-                throw new Error("User already exists");
-              }
-      
-              return await MemberServices.servicesCreateMember(args.data);
-            } catch (error) {
-              return error;
-            }
-          },
-      
-          updateMember: async (_: any, args: any) => {
-            return await MemberServices.servicesUpdateMember(args.id, args.data);
-          },
-      
-          deleteMember: async (_: any, args: { id: string }) => {
-            return await MemberServices.servicesDeleteMember(args.id);
-          },
-      
-          updateMemberPhoto: async (_: any, args: any) => {
-            return await MemberServices.servicesUpdateMember(args.id, args.data);
-          },
+    getMemberByID: async (_: any, args: { id: string }) => {
+      return await MemberServices.servicesGetMemberByID(args.id);
+    },
+  },
 
-          updateAdminMemberRole: async (_: any, args: any) => {
-            return await MemberServices.servicesUpdateMember(args.id, args.data);
-          },
+  Mutation: {
+    createMember: async (_: any, args: any, { user }: { user: User }) => {
+      // block for avoid duplicate
+      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+        console.log("You are not authorized to perform this action.");
+        console.log("User Admin status:", user?.Member?.Admin);
 
-          
-    }
+        throw new AuthenticationError(
+          "You are not authorized to perform this action."
+        );
+      }
 
+      try {
+        const existingMember = await MemberServices.avoidDuplicate(
+          args.data.FullName,
+          args.data.BirthDate
+        );
 
-}
+        if (existingMember) {
+          throw new UserInputError("User already exists");
+        }
+
+        const createNewMember = await MemberServices.servicesCreateMember(
+          args.data
+        );
+
+        console.log("Member created successfully:", createNewMember.FullName);
+        console.log("Created by Admin:", user?.Member.IsLeaders);
+
+        return createNewMember;
+      } catch (error) {
+        if (
+          error instanceof AuthenticationError ||
+          error instanceof UserInputError
+        ) {
+          throw error;
+        }
+        console.error("Error creating member:", error);
+        throw new Error("An unexpected error occurred");
+      }
+    },
+
+    updateMember: async (_: any, args: any, { user }: { user: User }) => {
+      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+        console.log("You are not authorized to perform this action.");
+        console.log("User Admin status:", user?.Member?.Admin);
+
+        throw new AuthenticationError(
+          "You are not authorized to perform this action."
+        );
+      }
+
+      try {
+        const updateDataMember = await MemberServices.servicesUpdateMember(
+          args.id,
+          args.data
+        );
+
+        if (updateDataMember === null) {
+          throw new Error("No data found");
+        }
+
+        console.log("Member updated successfully:", updateDataMember.FullName);
+
+        console.log("Updated by Admin:", user?.Member);
+
+        return updateDataMember;
+      } catch (error) {}
+    },
+
+    deleteMember: async (
+      _: any,
+      args: { id: string },
+      { user }: { user: User }
+    ) => {
+      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+        console.log("You are not authorized to perform this action.");
+        console.log("User Admin status:", user?.Member?.Admin);
+
+        throw new AuthenticationError(
+          "You are not authorized to perform this action."
+        );
+      }
+
+      try {
+        const deleteMember = await MemberServices.servicesDeleteMember(args.id);
+
+        return deleteMember;
+      } catch (error) {
+        throw new error();
+      }
+    },
+
+    updateMemberPhoto: async (_: any, args: any, { user }: { user: User }) => {
+      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+        console.log("You are not authorized to perform this action.");
+        console.log("User Admin status:", user?.Member?.Admin);
+
+        throw new AuthenticationError(
+          "You are not authorized to perform this action."
+        );
+      }
+
+      try {
+        return await MemberServices.servicesUpdateMember(args.id, args.data);
+      } catch (error) {
+        throw new error();
+      }
+    },
+
+    updateAdminMemberRole: async (
+      _: any,
+      args: any,
+      { user }: { user: User }
+    ) => {
+      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+        console.log("You are not authorized to perform this action.");
+        console.log("User Admin status:", user?.Member?.Admin);
+
+        throw new AuthenticationError(
+          "You are not authorized to perform this action."
+        );
+      }
+
+      try {
+        return await MemberServices.servicesUpdateMember(args.id, args.data);
+      } catch (error) {
+        throw new error();
+      }
+    },
+  },
+};

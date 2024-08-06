@@ -80,7 +80,11 @@ export class membersService {
     return await prisma.members.findUnique({ 
       where: { id }, 
       include :  {
-        Schedule : true
+        Schedule : true,
+        User : true,
+        Family : true,
+        Attendees : true,
+        IsLeaders : true,
       }
     
     });
