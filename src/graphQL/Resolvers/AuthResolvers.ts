@@ -1,34 +1,27 @@
 import { ApolloError, AuthenticationError } from "apollo-server-core";
 import { AuthServices } from "./../../Services/AuthServices";
 
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
-const authServices = new AuthServices(bcrypt, jwt);
+const authServices = new AuthServices();
 
 export const AuthResolvers = {
   Query: {
     getUserByID: async (_: any, args: { id: string }) => {
       try {
-
-
         const user = await authServices.getUserId(args.id);
         if (!user) {
           throw new Error("User not found");
         }
         return user;
-
       } catch (error) {
         console.error(error);
         throw error;
       }
-      
     },
   },
 
-
   Mutation: {
-    register: async (
+    registerNewUser: async (
       _: any,
       {
         Email,

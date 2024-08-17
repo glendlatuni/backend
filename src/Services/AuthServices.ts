@@ -1,15 +1,12 @@
 import { PrismaClient, User } from "@prisma/client";
-
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
-const JWT_SECRET =
-  process.env.JWT_SECRET ||
-  "898&*(82*()*&!&@(__)#(hsJJjsksosojoccmko(893029830948";
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 export class AuthServices {
-  constructor(private bcrypt: any, private jwt: any) {}
-
-
+ 
 
   async register(Email: string, Password: string, Members_Id: string) {
     if (!Email || !Password || !Members_Id) {
@@ -39,7 +36,7 @@ export class AuthServices {
       }
 
       // // Hash password
-      const hashedPassword = await this.bcrypt.hash(Password, 10);
+      const hashedPassword = await bcrypt.hash(Password, 10);
 
       // Buat user baru
       const newUser = await prisma.user.create({
@@ -53,8 +50,8 @@ export class AuthServices {
         },
       });
 
-      // Generate token
-      const token = this.jwt.sign({ userId: newUser.id }, JWT_SECRET, {
+      
+      const token = jwt.sign({ memberID: newUser.Member_id }, JWT_SECRET, {
         expiresIn: "1d",
       });
 
@@ -85,7 +82,7 @@ export class AuthServices {
       }
 
       // Verifikasi password
-      const isPasswordValid = await this.bcrypt.compare(
+      const isPasswordValid = await bcrypt.compare(
         Password,
         user.Password
       );
@@ -94,7 +91,7 @@ export class AuthServices {
       }
 
       // Generate token
-      const token = this.jwt.sign({ userId: user.id }, JWT_SECRET, {
+      const token = jwt.sign({ memberID: user.Member_id }, JWT_SECRET, {
         expiresIn: "1d",
       });
 
@@ -105,26 +102,15 @@ export class AuthServices {
     }
   }
 
-
-
-
-  async getUserId(id:string): Promise<User | null>{
-     try {
+  async getUserId(id: string): Promise<User | null> {
+    try {
       console.log(`Searching for user with id: ${id}`);
-      const findUser = await prisma.user.findUnique({ where: { id } })
-      console.log(`Found user:`, findUser)
-      return findUser
-
-     } catch (error) {
-      console.error(error)
-      return null
-     }
-    
-
-  } 
-
-
-
-
-
+      const findUser = await prisma.user.findUnique({ where: { id } });
+      console.log(`Found user:`, findUser);
+      return findUser;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
 }

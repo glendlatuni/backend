@@ -13,6 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model IsLeaders {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
   Name       String
@@ -53,7 +54,7 @@ model Members {
   Category       String
   Family         Family        @relation(fields: [Family_id], references: [id], onDelete: Cascade)
   Family_id      String        @db.ObjectId
-  Zones          Int
+  Zones          Int  // ini akan jadi patokan untuk membatasi akses dari ZOna lain
   KSP            String
   Address        String
   PhoneNumber    String

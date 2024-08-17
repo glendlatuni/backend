@@ -25,8 +25,10 @@ export class membersService {
   }
 
   // get members include family, schedule, attendees
-  async servicesGetMember(): Promise<Members[]> {
+  async servicesGetMember(zones:number): Promise<Members[]> {
+    const filter = zones ? { Zones: zones } : {};
     return await prisma.members.findMany({
+      where: filter,
       include: {
         Family: true,
         Attendees : true,
@@ -39,6 +41,7 @@ export class membersService {
 
   // get members by search of name
   async servicesGetMemberBySearch(search: string): Promise<Members[]> {
+
     return await prisma.members.findMany({
       where: {
         FullName: {

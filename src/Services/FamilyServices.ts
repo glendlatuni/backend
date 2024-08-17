@@ -55,8 +55,7 @@ export class familyServices {
     });
   }
 
-
-// get family by KSP
+  // get family by KSP
   async servicesGetFamilyByKSP(search: string): Promise<Family[]> {
     return await prisma.family.findMany({
       where: {

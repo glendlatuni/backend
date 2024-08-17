@@ -7,14 +7,16 @@ const prisma = new PrismaClient();
 
 
 interface JwtPayload {
-    userId: string;
+    memberID: string;
   }
- const  authMiddleware = async (
+ const  authMiddleware =  async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
- const token = req.headers.authorization?.split(" ")[1] || "";
+    const token = req.headers.authorization?.split(' ')[1] || "";
+
+
 
  if(!token){
     (req as any).user = null;
@@ -22,24 +24,26 @@ interface JwtPayload {
  }
 
  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "") as JwtPayload;
-    const user = await prisma.user.findUnique({
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretkey') as JwtPayload;
+    const user = await prisma.members.findUnique({
         where: {
-            id: decoded.userId
+            id: decoded.memberID
         },
-        include: {
-            Member :{
-                include: {
-                    IsLeaders: true
-                }
-            }
+        select:{
+            id : true,
+            Admin: true,
+            Zones : true,
+            FullName: true,
+            IsLeaders: true
+
+
         }
     })
 
     if(!user){
         return res.status(401).json({
             success: false,
-            message: "Invalid token",
+            message: "You are not authorized to access this resource",
            });
     }
 

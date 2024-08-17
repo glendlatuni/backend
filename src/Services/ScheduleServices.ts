@@ -5,20 +5,18 @@ const prisma = new PrismaClient();
 export class scheduleServices {
   async serviceCreateSchedule(data: Omit<Schedule, "id">): Promise<Schedule> {
     try {
-
       const onDuty = await prisma.isLeaders.findUnique({
         where: { id: data.Leaders_id },
         select: {
           id: true,
-          onDuty: true
-        }
-      })
+          onDuty: true,
+        },
+      });
 
-
-      if(!onDuty) throw new Error('invalid leaders ID or not found')
-
-      if(!onDuty.onDuty) throw new Error('Leader not on duty')
-
+      // Cek apakah leader ada
+      if (!onDuty) throw new Error("invalid leaders ID or not found");
+      // Cek apakah leader sedang aktif dalam bertugas
+      if (!onDuty.onDuty) throw new Error("Leader not on duty");
 
       // Persiapkan data untuk membuat schedule
       const scheduleData: any = {
@@ -67,9 +65,6 @@ export class scheduleServices {
     }
   }
 
-
-
-
   async serviceGetScheduleByID(id: string): Promise<Members | null> {
     try {
       return await prisma.members.findFirst({
@@ -91,6 +86,46 @@ export class scheduleServices {
       console.error("Error in serviceDeleteSchedule:", error);
       throw error;
     }
+  }
+
+  async serviceGetScheduleBySearch(
+    search: string,
+    searchFields: (keyof Schedule| "Members.KSP")[] = ['Day']
+  ): Promise<Schedule[]> {
+    const whereCondition = searchFields.reduce((acc, field) => {
+      if (field === "Members.KSP") {
+        acc.Members = {
+          KSP: {
+            contains: search,
+            mode: 'insensitive',
+          }
+        }
+      }else{
+        acc[field as keyof Schedule] = {
+          contains: search,
+          mode: 'insensitive',
+        };
+      }
+      
+      
+      return acc;
+    }, {} as Record<string, any>);
+  
+    return await prisma.schedule.findMany({
+      where: {
+        OR: Object.entries(whereCondition).map(([field, condition]) => 
+          field === 'Members' ? { Member: condition } : { [field]: condition }
+        ),
+      },
+      include: {
+        IsLeaders: true,
+        Member: {
+          include: {
+            Family: true,
+          },
+        },
+      },
+    });
   }
 
   async serviceUpdateSchedule(

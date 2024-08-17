@@ -23,6 +23,6 @@ export const AuthenticationtypeDefs = gql`
   type Mutation {
     login(Email: String!, Password: String!): AuthPayload!
 
-    register(Email: String!, Password: String!, Member_Id: String!): AuthPayload!
+    registerNewUser(Email: String!, Password: String!, Member_Id: String!): AuthPayload!
   }
 `;

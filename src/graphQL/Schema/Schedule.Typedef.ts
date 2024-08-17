@@ -31,9 +31,13 @@ type Schedule {
     Description: String!
   }
 
+input searchFieldsCategory {
+  Category: String!
+}
   type Query {
     queryGetScheduleByID(id: ID!): Schedule
     queryGetSchedule: [Schedule!]!
+    queryGetScheduleBySearch(search: String!, searchFields: [String]!): [Schedule!]
   }
 
   type Mutation {

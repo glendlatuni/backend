@@ -1,33 +1,33 @@
-import { AuthServices } from "./src/Services/AuthServices";
+import { zoneAuthMiddleware } from "./src/utils/zoneAuthMiddleware";
 import { authMiddleware } from "./src/utils/AuthMiddleware";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import margeTypedef from "./src/graphQL/Schema/index";
 import mergeResolvers from "./src/graphQL/Resolvers/index";
+import { applyMiddleware } from "graphql-middleware";
 
 import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
 
-app.use(express.json());
-app.use(authMiddleware);
-
-const server = new ApolloServer({
+const schema = makeExecutableSchema({
   typeDefs: margeTypedef,
   resolvers: mergeResolvers,
-  context: ({ req }) => {
+});
 
-    try {
-      
-      return {
-        user: (req as any).user,
-        AuthServices,
-      };
-    } catch (error) {
-      return { user: null };
-    }
+app.use(express.json());
+
+app.use(authMiddleware);
+
+const schemaWithMiddleware = applyMiddleware(schema, zoneAuthMiddleware);
+
+const server = new ApolloServer({
+  schema: schemaWithMiddleware,
+  context: ({ req }) => {
+    return { user: (req as any).user };
   },
 });
 
