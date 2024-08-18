@@ -1,6 +1,7 @@
-import { PrismaClient, Members } from "@prisma/client";
+import { PrismaClient, Members, } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
 
 export class membersService {
   // create member [-]
@@ -25,8 +26,8 @@ export class membersService {
   }
 
   // get members include family, schedule, attendees
-  async servicesGetMember(zones:number): Promise<Members[]> {
-    const filter = zones ? { Zones: zones } : {};
+  async servicesGetMember(zones:number | null, isSuperUser:Boolean = false): Promise<Members[]> {
+    const filter =  isSuperUser ? {} : zones ? { Zones: zones } : {};
     return await prisma.members.findMany({
       where: filter,
       include: {
@@ -93,11 +94,13 @@ export class membersService {
     });
   }
 
+  // Update Many Members
+  
+
 
 
   // avoid duplicate
   async avoidDuplicate(fullName:string, birthDate:Date): Promise<Members | null> {
-
     return await prisma.members.findFirst({
       where: {
         FullName: fullName,

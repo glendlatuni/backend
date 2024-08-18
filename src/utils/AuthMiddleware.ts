@@ -31,7 +31,7 @@ interface JwtPayload {
         },
         select:{
             id : true,
-            Admin: true,
+            Role: true,
             Zones : true,
             FullName: true,
             IsLeaders: true

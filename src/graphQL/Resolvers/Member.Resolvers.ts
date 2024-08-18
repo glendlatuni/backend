@@ -3,7 +3,7 @@ import { AuthenticationError, UserInputError } from "apollo-server-core";
 const MemberServices = new membersService();
 
 interface User {
-  Admin?: boolean;
+  Role?: string;
   IsLeaders?: {
     Admin?: boolean;
   };
@@ -13,7 +13,8 @@ export const MemberResolvers = {
   Query: {
     queryGetMember: async (_: any, _args: any, context: any) => {
       const zones = context.user?.Zones;
-      return await MemberServices.servicesGetMember(zones);
+      const isSuperUser = context.user?.Role === "SUPERUSER";
+      return await MemberServices.servicesGetMember(zones, isSuperUser);
     },
     memberSearch: async (_: any, args: { search: string }) => {
       return await MemberServices.servicesGetMemberBySearch(args.search);
@@ -31,9 +32,9 @@ export const MemberResolvers = {
   Mutation: {
     createMember: async (_: any, args: any, { user }: { user: User }) => {
       // block for avoid duplicate
-      if (!user?.Admin && !user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Admin);
+
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
@@ -70,9 +71,8 @@ export const MemberResolvers = {
     },
 
     updateMember: async (_: any, args: any, { user }: { user: User }) => {
-      if (!user?.Admin && !user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Admin);
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
@@ -102,9 +102,8 @@ export const MemberResolvers = {
       args: { id: string },
       { user }: { user: User }
     ) => {
-      if (!user?.Admin && !user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Admin);
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
@@ -121,9 +120,8 @@ export const MemberResolvers = {
     },
 
     updateMemberPhoto: async (_: any, args: any, { user }: { user: User }) => {
-      if (!user?.Admin && !user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Admin);
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
@@ -142,9 +140,8 @@ export const MemberResolvers = {
       args: any,
       { user }: { user: User }
     ) => {
-      if (!user?.Admin && !user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Admin);
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."

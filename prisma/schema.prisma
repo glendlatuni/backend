@@ -14,6 +14,12 @@ datasource db {
 }
 
 
+enum role {
+  ADMIN
+  MEMBERS
+  SUPERUSER
+}
+
 model IsLeaders {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
   Name       String
@@ -67,7 +73,7 @@ model Members {
   Attendees_id   String[]      @db.ObjectId
   ProfilePhoto   String?
   UploadPhoto    UploadPhoto[]
-  Admin          Boolean       @default(false)
+  Role           role          @default(MEMBERS)
 }
 
 model Family {

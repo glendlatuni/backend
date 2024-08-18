@@ -5,10 +5,18 @@ export const zoneAuthMiddleware = async (
   resolve: (arg0: any, arg1: any, arg2: any, arg3: any) => any,
   root: any,
   args: { where: any },
-  context: { user?: {  Zones: any, FullName: any } } ,
+  context: { user?: {  Zones: any, FullName: any, Role: any } } ,
   info: GraphQLResolveInfo
 ) => {
+
+  if (context.user?.Role === "SUPERUSER") {
+    console.log("you are SUPERUSER");
+    
+    return resolve(root, args, context, info);
+  }
+
   console.log("you are :", context.user?.FullName);
+  console.log("YOUR RULE :", context.user);
   console.log("you are looking for data at zone ", context.user?.Zones);
 
 
