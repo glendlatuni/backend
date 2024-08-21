@@ -9,26 +9,18 @@ export const zoneAuthMiddleware = async (
   info: GraphQLResolveInfo
 ) => {
 
-  if (context.user?.Role === "SUPERUSER") {
-    console.log("you are SUPERUSER");
-    
-    return resolve(root, args, context, info);
-  }
-
-  console.log("you are :", context.user?.FullName);
-  console.log("YOUR RULE :", context.user);
-  console.log("you are looking for data at zone ", context.user?.Zones);
-
 
   const notAuthRequiredOperation = new Set(["registerNewUser", "login"]);
 
   const currentOperation = info?.fieldNodes[0]?.name?.value;
   const parent = info?.parentType?.name;
 
-  console.log(`Current operation: ${currentOperation}`);
-  console.log(`Parent type: ${parent}`);
 
 
+  if (context.user?.Role === "SUPERUSER") {
+    
+    return resolve(root, args, context, info);
+  }
 
   // Periksa apakah operasi saat ini adalah operasi yang tidak memerlukan autentikasi
   if (notAuthRequiredOperation.has(currentOperation) && parent === "Mutation") {

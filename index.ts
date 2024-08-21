@@ -1,7 +1,6 @@
 import { zoneAuthMiddleware } from "./src/utils/zoneAuthMiddleware";
 import { authMiddleware } from "./src/utils/AuthMiddleware";
 import { makeExecutableSchema } from "@graphql-tools/schema";
-
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import margeTypedef from "./src/graphQL/Schema/index";
@@ -34,6 +33,8 @@ const server = new ApolloServer({
 // Memulai server Apollo
 server.start().then(() => {
   server.applyMiddleware({ app: app as any });
+
+
 
   // Memulai server Express
   app.listen({ port: 4000 }, () =>

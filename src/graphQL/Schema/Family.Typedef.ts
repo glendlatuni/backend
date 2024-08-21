@@ -15,7 +15,7 @@ export const familyTypedef = gql`
 
   type Query {
     queryGetFamily: [Family!]!
-    queryGetFamilyByID(id: ID!): Family!
+    queryGetFamilyByID(id: ID!): Family
     familySearch(search: String): [Family!]
     querySearchFamilyByKSP(search: String): [Family!]
   }

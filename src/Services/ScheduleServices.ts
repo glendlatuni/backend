@@ -20,16 +20,18 @@ export class scheduleServices {
 
       // Persiapkan data untuk membuat schedule
       const scheduleData: any = {
+        Member_id: data.Member_id,
         Category: data.Category,
-        Address: data.Address,
-        Liturgos: data.Liturgos,
         Date: data.Date,
         Day: data.Day,
         Month: data.Month,
         Years: data.Years,
         Time: data.Time,
+        Address: data.Address,
+        Liturgos_id: data.Liturgos_id,
         Description: data.Description,
         Leaders_id: data.Leaders_id,
+        
       };
 
       // Jika member_id ada, tambahkan ke scheduleData
@@ -51,12 +53,9 @@ export class scheduleServices {
     try {
       return await prisma.schedule.findMany({
         include: {
+          Member: true,
           IsLeaders: true,
-          Member: {
-            include: {
-              Family: true,
-            },
-          },
+          Liturgos: true,
         },
       });
     } catch (error) {

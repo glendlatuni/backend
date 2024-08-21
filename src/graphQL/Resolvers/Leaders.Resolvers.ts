@@ -4,11 +4,9 @@ import { leaderServices } from "../../Services/LeaderServices";
 const LeaderServices = new leaderServices();
 
 interface User {
-  Member?: {
+  Role?: string;
+  IsLeaders?: {
     Admin?: boolean;
-    IsLeaders?: {
-      Admin?: boolean;
-    };
   };
 }
 
@@ -25,9 +23,9 @@ export const LeaderResolvers = {
 
   Mutation: {
     createIsLeaders: async (_: any, args: any, { user }: { user: User }) => {
-      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Member?.Admin);
+        console.log("User Admin status:", user?.IsLeaders?.Admin);
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
@@ -37,7 +35,6 @@ export const LeaderResolvers = {
       try {
         const newLeader = await LeaderServices.serviceCreateLeader(args.data);
         console.log("Leader created successfully:", newLeader);
-        console.log("Created by Admin:", user?.Member.IsLeaders);
 
         return newLeader;
       } catch (error) {
@@ -50,9 +47,9 @@ export const LeaderResolvers = {
       args: { id: string; data: any },
       { user }: { user: User }
     ) => {
-      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Member?.Admin);
+        console.log("User Admin status:", user?.IsLeaders?.Admin);
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
@@ -60,7 +57,6 @@ export const LeaderResolvers = {
       }
 
       console.log("Leader updated successfully:", args.data);
-      console.log("Updated by Admin:", user?.Member.IsLeaders);
 
       return await LeaderServices.serviceUpdateLeaderByID(args.id, args.data);
     },
@@ -70,17 +66,16 @@ export const LeaderResolvers = {
       args: { id: string },
       { user }: { user: User }
     ) => {
-      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Member?.Admin);
-
+        console.log("User Admin status:", user?.IsLeaders?.Admin);
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
       }
 
       console.log("Leader deleted successfully:", args.id);
-      console.log("Deleted by Admin:", user?.Member.IsLeaders);
+
       return await LeaderServices.serviceDeleteLeaderByID(args.id);
     },
 
@@ -89,9 +84,9 @@ export const LeaderResolvers = {
       args: { id: string; data: any },
       { user }: { user: User }
     ) => {
-      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Member?.Admin);
+        console.log("User Admin status:", user?.IsLeaders?.Admin);
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
@@ -99,7 +94,6 @@ export const LeaderResolvers = {
       }
 
       console.log("On Duty Leader updated successfully:", args.data);
-      console.log("Updated by Admin:", user?.Member.IsLeaders);
 
       return await LeaderServices.serviceUpdateLeaderByID(args.id, args.data);
     },
@@ -109,16 +103,15 @@ export const LeaderResolvers = {
       args: { id: string; data: any },
       { user }: { user: User }
     ) => {
-      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Member?.Admin);
+        console.log("User Admin status:", user?.IsLeaders?.Admin);
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
       }
 
       console.log("On Duty Leader updated successfully:", args.data);
-      console.log("Updated by Admin:", user?.Member.IsLeaders);
 
       return await LeaderServices.serviceUpdateLeaderByID(args.id, args.data);
     },

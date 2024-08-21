@@ -1,6 +1,25 @@
-import { PrismaClient, Family } from "@prisma/client";
+import { PrismaClient, Family, } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+type familyByZoneFilter = {
+  FamilyMembers: {
+    some: {
+      Zones: number | null;
+    };
+    }
+}
+
+function createFamilyByZoneFilter(zones: number | null): familyByZoneFilter {
+  return {
+    FamilyMembers: {
+      some: {
+        Zones: zones,
+      },
+    },
+  };
+}
+
 
 export class familyServices {
   // create family
@@ -9,8 +28,10 @@ export class familyServices {
   }
 
   // get family
-  async servicesGetFamily(): Promise<Family[]> {
+  async servicesGetFamily(zones:number | null, isSuperUser:Boolean = false): Promise<Family[]> {
+    const filter =  isSuperUser ? {} : zones ? createFamilyByZoneFilter(zones) : {};
     return await prisma.family.findMany({
+      where: filter,
       include: {
         FamilyMembers: true,
       },
@@ -18,13 +39,27 @@ export class familyServices {
   }
 
   // get family by ID
-  async servicesGetFamilyByID(id: string): Promise<Family | null> {
-    return await prisma.family.findUnique({
+  async servicesGetFamilyByID(id: string, zones:number | null, isSuperUser:Boolean = false): Promise<Family | null> {
+    const family = await prisma.family.findUnique({
       where: { id },
       include: {
         FamilyMembers: true,
       },
     });
+    if(!family) {
+      throw new Error("Family not found");
+    }
+
+    const zonaNyaman = zones ? createFamilyByZoneFilter(zones) : {}
+
+
+ 
+
+    if(isSuperUser || zonaNyaman ) {
+      return family;
+    }
+    return null;
+
   }
 
   // update family

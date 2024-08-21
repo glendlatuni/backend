@@ -3,6 +3,13 @@ import { scheduleServices } from "../../Services/ScheduleServices";
 
 const ScheduleServices = new scheduleServices();
 
+interface User {
+  Role?: string;
+  IsLeaders?: {
+    Admin?: boolean;
+  };
+}
+
 enum searchFields {
   Id = "id",
   Category = "Category",
@@ -12,8 +19,10 @@ enum searchFields {
   Years = "Years",
   Time = "Time",
   Address = "Address",
-  Liturgos = "Liturgos",
-  Description = "Description"
+  Member_id = "Member_id",
+  Liturgos_id = "Liturgos_id",
+  Description = "Description",
+  Members_KSP = "Members.KSP"
 }
 
 export const ScheduleResolvers = {
@@ -32,10 +41,10 @@ export const ScheduleResolvers = {
   },
 
   Mutation: {
-    createSchedule: async (_: any, args: any, { user }: { user: any }) => {
-      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+    createSchedule: async (_: any, args: any, { user }: { user: User }) => {
+      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Member?.Admin);
+        console.log("User Admin status:", user?.Role === "MEMBER");
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
@@ -43,7 +52,7 @@ export const ScheduleResolvers = {
       }
 
       console.log("Schedule created successfully:", args.data);
-      console.log("Created by Admin:", user?.Member.IsLeaders);
+      console.log("Created by Admin:", user?.IsLeaders?.Admin);
 
       return await ScheduleServices.serviceCreateSchedule(args.data);
     },
@@ -51,38 +60,40 @@ export const ScheduleResolvers = {
     updateSchedule: async (
       _: any,
       args: { id: string; data: any },
-      { user }: { user: any }
+      { user }: { user: User }
     ) => {
-      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Member?.Admin);
+        console.log("User Admin status:", user?.Role === "MEMBER");
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
       }
 
-      console.log("Schedule updated successfully:", args.data);
-      console.log("Updated by Admin:", user?.Member.IsLeaders);
+      console.log("Schedule created successfully:", args.data);
+      console.log("Created by Admin:", user?.IsLeaders?.Admin);
       return await ScheduleServices.serviceUpdateSchedule(args.id, args.data);
     },
 
     deleteSchedule: async (
       _: any,
-      args: { id: string },
-      { user }: { user: any }
+      args: {
+        [x: string]: any; id: string 
+},
+      { user }: { user: User }
     ) => {
-      if (!user?.Member?.Admin && !user?.Member?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
-        console.log("User Admin status:", user?.Member?.Admin);
+        console.log("User Admin status:", user?.Role === "MEMBER");
 
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
       }
 
-      console.log("Schedule deleted successfully:", args.id);
-      console.log("Deleted by Admin:", user?.Member.IsLeaders);
+      console.log("Schedule created successfully:", args.data);
+      console.log("Created by Admin:", user?.IsLeaders?.Admin);
       return await ScheduleServices.serviceDeleteSchedule(args.id);
     },
   },

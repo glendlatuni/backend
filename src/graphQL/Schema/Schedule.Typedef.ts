@@ -13,7 +13,7 @@ type Schedule {
     Address: String!
     Member: Members
     IsLeaders: IsLeaders
-    Liturgos: String!
+    Liturgos: Members
     Description: String!
     Attendees: [Attendees!]
   }
@@ -27,7 +27,7 @@ type Schedule {
     Address: String!
     Member_id: ID!
     Leaders_id: ID!
-    Liturgos: String!
+    Liturgos_id: ID! # gunakan id member untuk relasi 
     Description: String!
   }
 

@@ -4,21 +4,25 @@ import { familyServices } from "../../Services/FamilyServices";
 const FamilyServices = new familyServices();
 
 interface User {
-    role ?: string;
-    IsLeaders?: {
-      Admin?: boolean;
-    };
+  Role?: string;
+  IsLeaders?: {
+    Admin?: boolean;
   };
+}
 
 
 export const FamilyResolvers = {
   Query: {
-    queryGetFamily: async () => {
-      return await FamilyServices.servicesGetFamily();
+    queryGetFamily: async (_: any, _args: any, context: any) => {
+      const zones = context.user?.Zones;
+      const isSuperUser = context.user?.Role === "SUPERUSER";
+      return await FamilyServices.servicesGetFamily(zones, isSuperUser );
     },
 
-    queryGetFamilyByID: async (_: any, args: { id: string }) => {
-      return await FamilyServices.servicesGetFamilyByID(args.id);
+    queryGetFamilyByID: async (_: any, args: { id: string }, context:any) => {
+     const zones = context.user?.Zones;
+     const isSuperUser = context.user?.Role === "SUPERUSER";
+      return await FamilyServices.servicesGetFamilyByID(args.id, zones, isSuperUser );
     },
 
     familySearch: async (_: any, args: { search: string }) => {
@@ -33,7 +37,7 @@ export const FamilyResolvers = {
   Mutation: {
     // family section
     createFamily: async (_: any, args: any, { user }: { user: User }) => {
-      if (user?.role === "MEMBER" && user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
         console.log("User Admin status:", user);
 
@@ -59,7 +63,7 @@ export const FamilyResolvers = {
       args: { id: string },
       { user }: { user: User }
     ) => {
-      if (user?.role === "MEMBER" && user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
         console.log("User Admin status:", user?.IsLeaders);
         throw new AuthenticationError(
@@ -82,7 +86,7 @@ export const FamilyResolvers = {
       args: { id: string; data: any },
       { user }: { user: User }
     ) => {
-      if (user?.role === "MEMBER" && user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
         console.log("User Admin status:", user?.IsLeaders);
         throw new AuthenticationError(

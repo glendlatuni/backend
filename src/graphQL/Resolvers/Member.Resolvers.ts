@@ -16,23 +16,29 @@ export const MemberResolvers = {
       const isSuperUser = context.user?.Role === "SUPERUSER";
       return await MemberServices.servicesGetMember(zones, isSuperUser);
     },
-    memberSearch: async (_: any, args: { search: string }) => {
-      return await MemberServices.servicesGetMemberBySearch(args.search);
+    memberSearch: async (_: any, args: { search: string}, context: any) => {
+      const zones = context.user?.Zones;
+      const isSuperUser = context.user?.Role === "SUPERUSER";
+      return await MemberServices.servicesGetMemberBySearch(args.search, zones, isSuperUser);
     },
 
-    queryGetKSP: async (_: any, args: { search: string }) => {
-      return await MemberServices.serviceGetMemberByKSP(args.search);
+    queryGetKSP: async (_: any, args: { search: string}, context: any) => {
+      const zones = context.user?.Zones;
+      const isSuperUser = context.user?.Role === "SUPERUSER";
+      return await MemberServices.serviceGetMemberByKSP(args.search, zones, isSuperUser);
     },
 
-    getMemberByID: async (_: any, args: { id: string }) => {
-      return await MemberServices.servicesGetMemberByID(args.id);
+    getMemberByID: async (_: any, args: { id: string }, context: any) => {
+      const zones = context.user?.Zones;
+      const isSuperUser = context.user?.Role === "SUPERUSER";
+      return await MemberServices.servicesGetMemberByID(args.id, zones, isSuperUser);
     },
   },
 
   Mutation: {
     createMember: async (_: any, args: any, { user }: { user: User }) => {
-      // block for avoid duplicate
-      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
+     
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
 
         throw new AuthenticationError(
@@ -41,6 +47,7 @@ export const MemberResolvers = {
       }
 
       try {
+         // block for avoid duplicate
         const existingMember = await MemberServices.avoidDuplicate(
           args.data.FullName,
           args.data.BirthDate
@@ -53,9 +60,6 @@ export const MemberResolvers = {
         const createNewMember = await MemberServices.servicesCreateMember(
           args.data
         );
-
-        console.log("Member created successfully:", createNewMember.FullName);
-        console.log("Created by Admin:", user?.IsLeaders);
 
         return createNewMember;
       } catch (error) {
@@ -71,7 +75,7 @@ export const MemberResolvers = {
     },
 
     updateMember: async (_: any, args: any, { user }: { user: User }) => {
-      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
 
         throw new AuthenticationError(
@@ -102,7 +106,7 @@ export const MemberResolvers = {
       args: { id: string },
       { user }: { user: User }
     ) => {
-      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
 
         throw new AuthenticationError(
@@ -119,15 +123,7 @@ export const MemberResolvers = {
       }
     },
 
-    updateMemberPhoto: async (_: any, args: any, { user }: { user: User }) => {
-      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
-        console.log("You are not authorized to perform this action.");
-
-        throw new AuthenticationError(
-          "You are not authorized to perform this action."
-        );
-      }
-
+    updateMemberPhoto: async (_: any, args: any) => {
       try {
         return await MemberServices.servicesUpdateMember(args.id, args.data);
       } catch (error) {
@@ -140,7 +136,7 @@ export const MemberResolvers = {
       args: any,
       { user }: { user: User }
     ) => {
-      if (user?.Role === "MEMBER" && user?.IsLeaders?.Admin) {
+      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
         console.log("You are not authorized to perform this action.");
 
         throw new AuthenticationError(

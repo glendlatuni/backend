@@ -27,47 +27,63 @@ export class membersService {
 
   // get members include family, schedule, attendees
   async servicesGetMember(zones:number | null, isSuperUser:Boolean = false): Promise<Members[]> {
-    const filter =  isSuperUser ? {} : zones ? { Zones: zones } : {};
+    const filter =  isSuperUser ? {} : zones ? { Zones: zones } : {}; // filter by zone, if superuser no filter
     return await prisma.members.findMany({
       where: filter,
       include: {
+        ScheduleAsLiturgos: true,
         Family: true,
         Attendees : true,
         IsLeaders : true,
         Schedule: true,
         User: true,
+        
         },
     });
   }
 
   // get members by search of name
-  async servicesGetMemberBySearch(search: string): Promise<Members[]> {
-
+  async servicesGetMemberBySearch(search: string, zones: number, isSuperUser: boolean = false): Promise<Members[]> {
+    const zoneFilter = isSuperUser ? {} : { Zones: zones };
+    
     return await prisma.members.findMany({
       where: {
-        FullName: {
-          contains: search,
-          mode: "insensitive",
-        },
+        AND: [
+          {
+            FullName: {
+              contains: search,
+              mode: "insensitive" as const,
+            },
+          },
+          zoneFilter
+        ],
       },
       include: {
         Family: true,
         Schedule: true,
         Attendees: true,
         IsLeaders: true,
+        User: true,
       },
     });
   }
 
 // get members by search of KSP
-  async serviceGetMemberByKSP(search: string): Promise<Members[]> {
+  async serviceGetMemberByKSP(search: string, zones: number, isSuperUser: boolean = false): Promise<Members[]> {
+    const zoneFilter = isSuperUser ? {} : { Zones: zones };
     return await prisma.members.findMany({
       where: {
-        KSP: {
-          contains: search,
-          mode: "insensitive",
-        },
+        AND: [
+          {
+            KSP: {
+              contains: search,
+              mode: "insensitive" as const,
+            },
+          },
+          zoneFilter
+        ],
       },
+    
       include:{
         Family: true,
         Schedule: true,
@@ -79,9 +95,9 @@ export class membersService {
 
 
 // get member by ID
-  async servicesGetMemberByID(id: string): Promise<Members | null> {
-    console.log(`Getting member by ID: ${id}`);
-    return await prisma.members.findUnique({ 
+  async servicesGetMemberByID(id: string, zones: number, isSuperUser: boolean = false): Promise<Members | null> {
+  
+    const member = await prisma.members.findUnique({ 
       where: { id }, 
       include :  {
         Schedule : true,
@@ -92,6 +108,14 @@ export class membersService {
       }
     
     });
+
+    if (!member) {
+      throw new Error("Member not found");
+    }
+    if (isSuperUser || member.Zones === zones) {
+      return member;
+    }
+    return null;
   }
 
   // Update Many Members
