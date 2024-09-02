@@ -1,7 +1,6 @@
 import { ApolloError, AuthenticationError } from "apollo-server-core";
 import { AuthServices } from "./../../Services/AuthServices";
 
-
 const authServices = new AuthServices();
 
 export const AuthResolvers = {
@@ -47,6 +46,11 @@ export const AuthResolvers = {
         }
         throw new ApolloError("An error occurred during login");
       }
+    },
+    logout: async (_: any, { userId }: { userId: string }) => {
+      const Logout = await authServices.logout(userId);
+      console.log("Logout Success:", userId);
+      return Logout;
     },
   },
 };

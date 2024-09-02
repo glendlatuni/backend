@@ -21,7 +21,6 @@ enum role {
 
 model IsLeaders {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
-  Name       String
   Title      String // sym pnt pdt
   Member     Members?   @relation("MemberLeader", fields: [Members_id], references: [id], onDelete: SetNull)
   Members_id String?    @unique @db.ObjectId
@@ -60,14 +59,11 @@ model Members {
   Category           String
   Family             Family        @relation(fields: [Family_id], references: [id], onDelete: Cascade)
   Family_id          String        @db.ObjectId
-  Zones              Int // ini akan jadi patokan untuk membatasi akses dari ZOna lain
-  KSP                String
-  Address            String
   PhoneNumber        String
   User               User?
   IsLeaders          IsLeaders?    @relation("MemberLeader")
-  Leaders            Boolean // dipakau untuk menentukan apakah dia leader atau bukan
-  Liturgos           Boolean // dipakau untuk menentukan apakah dia bisa menjadi liturgos atau tidak
+  Leaders            Boolean // dipakai untuk menentukan apakah dia leader atau bukan
+  Liturgos           Boolean // dipakai untuk menentukan apakah dia bisa menjadi liturgos atau tidak
   Schedule           Schedule[]    @relation("scheduleMember") // mencatat tempat ibadah di member ini
   ScheduleAsLiturgos Schedule[]    @relation("SceheduleLiturgos") // mencatat berapa banyak  member ini menjadi liturgos
   Attendees          Attendees[]   @relation(fields: [Attendees_id], references: [id])
@@ -80,16 +76,17 @@ model Members {
 model Family {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   FamilyName    String
-  Rayon         Int 
+  Rayon         Int?
+  KSP           String
+  Address       String
   FamilyMembers Members[]
-  
 }
 
 model Attendees {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   Schedule    Schedule  @relation(fields: [Schedule_id], references: [id], onDelete: Cascade)
   Schedule_id String    @unique @db.ObjectId
-  Members     Members[] @relation(fields: [Members_id], references: [id]) 
+  Members     Members[] @relation(fields: [Members_id], references: [id])
   Members_id  String[]  @db.ObjectId // mencatat id dari member yang hadir
   Man         Int?
   Woman       Int?
@@ -103,6 +100,8 @@ model User {
   Password  String
   Member    Members? @relation(fields: [Member_id], references: [id])
   Member_id String?  @unique @db.ObjectId
+
+  refreshToken refreshToken[]
 }
 
 model UploadPhoto {
@@ -116,4 +115,15 @@ model UploadPhoto {
 
   Members    Members @relation(fields: [Members_id], references: [id], onDelete: Cascade)
   Members_id String  @db.ObjectId
+}
+
+model refreshToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String   @unique
+  userId    String   @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

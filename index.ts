@@ -34,8 +34,6 @@ const server = new ApolloServer({
 server.start().then(() => {
   server.applyMiddleware({ app: app as any });
 
-
-
   // Memulai server Express
   app.listen({ port: 4000 }, () =>
     console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)

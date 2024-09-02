@@ -5,12 +5,17 @@ export const familyTypedef = gql`
     id: ID!
     FamilyName: String!
     FamilyMembers: [Members!]!
-    IsLeaders: IsLeaders
+    IsLeaders: IsLeaders!
+    Rayon: Int!
+    KSP: String!
+    Address: String
   }
 
   input FamilyInput {
-    id: ID
     FamilyName: String!
+    Rayon: Int
+    KSP: String
+    Address: String
   }
 
   type Query {
@@ -23,7 +28,6 @@ export const familyTypedef = gql`
   type Mutation {
     getFamily(id: ID!): Family
     createFamily(data: FamilyInput!): Family
-    deleteFamily(id: ID!): Family
     updateFamily(id: ID!, data: FamilyInput!): Family
   }
 `;

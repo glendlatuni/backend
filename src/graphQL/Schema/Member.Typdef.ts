@@ -10,10 +10,7 @@ export const memberTypedef = gql`
     FamilyPosition: String!
     Category: String!
     Family: Family
-    Zones: Int!
-    KSP: String!
     IsLeaders: IsLeaders
-    Address: String!
     PhoneNumber: String!
     User: User
     Leaders: Boolean!
@@ -33,9 +30,6 @@ export const memberTypedef = gql`
     FamilyPosition: String!
     Category: String!
     Family_id: ID! # Gunakan ID untuk relasi
-    Zones: Int!
-    KSP: String!
-    Address: String!
     PhoneNumber: String!
     user_id: ID # Opsional, gunakan ID untuk relasi
     Leaders: Boolean!
@@ -56,6 +50,7 @@ export const memberTypedef = gql`
     memberSearch(search: String): [Members!]!
     queryGetKSP(search: String): [Members!]
     getMemberByID(id: ID!): Members
+    queryGetMemberCanBeLiturgos: [Members]
   }
 
   type Mutation {

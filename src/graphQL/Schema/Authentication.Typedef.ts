@@ -14,15 +14,26 @@ export const AuthenticationtypeDefs = gql`
     token: String
   }
 
-  type Query {
-    users: [User!]!
-    getUserByID(id:ID!): User!
+  type RefreshTokenResponse {
+    accessToken: String
   }
 
+  type Query {
+    users: [User!]!
+    getUserByID(id: ID!): User!
+  }
+  type LogoutResponse {
+    success: Boolean!
+  }
 
   type Mutation {
     login(Email: String!, Password: String!): AuthPayload!
-
-    registerNewUser(Email: String!, Password: String!, Member_Id: String!): AuthPayload!
+    registerNewUser(
+      Email: String!
+      Password: String!
+      Member_Id: String!
+    ): AuthPayload!
+    refreshToken(refreshToken: String!): RefreshTokenResponse!
+    logout(userId: String!): Boolean
   }
 `;

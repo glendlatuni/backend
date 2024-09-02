@@ -1,26 +1,52 @@
-import { PrismaClient, role } from '@prisma/client';
+// import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
+// async function migrate() {
+  // Update semua Family yang belum memiliki Rayon
+  // await prisma.family.updateMany({
+  //   where: {
+  //     Rayon: null,
+  //   },
+  //   data: {
+  //     Rayon: 0, 
+  //   },
+  // });
 
-async function updateAdmintorole() {
-    await prisma.members.updateMany({
-        where: { Admin: true },
-        data: { Role: role.ADMIN }
-      });
+  // const families = await prisma.family.findMany({
+  //   include: {
+  //     FamilyMembers: {
+  //       select: {
+  //         id: true,
+  //         FullName: true,
+  //         Zones: true,
+  //         Family_id: true,
+  //       },
+  //     },
+  //   },
+  // });
 
-      await prisma.members.updateMany({
-        where: { Admin: false },
-        data: { Role: role.MEMBERS },
-      });
+  // for (const family of families) {
+  //   const uniqueZones = Array.from(new Set(family.FamilyMembers.map((member) => member.Zones)));
+  //   await prisma.family.update({
+  //     where: {
+  //       id: family.id,
+  //     },
+  //     data: {
+  //       Rayon: uniqueZones[0], // Asumsi hanya satu zona di satu keluarga
+  //     },
+  //   });
+  // }
 
-      console.log('Roles updated successfully');
-}
+  // Hapus field Zones dari model Member
+//   await prisma.members.updateMany({
+//     data: {
+//       Zones: null, // Atur nilai default untuk Zones jika perlu
+//     },
+   
+    
+//   });
+//   console.log("Zones field deleted successfully");
+// }
 
-updateAdmintorole()
-  .catch((e) => {
-    console.error(e);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// migrate();

@@ -51,7 +51,7 @@ export class attendeesServices {
       const attendees = await prisma.attendees.findUnique({
         where: { id: id },
         select: {
-          Members_ID: true,
+          Members_id: true,
         },
       });
 
@@ -59,13 +59,13 @@ export class attendeesServices {
         throw new Error("Attendees not found");
       }
 
-      const exsistingMembers = new Set(attendees.Members_ID);
+      const exsistingMembers = new Set(attendees.Members_id);
       const newMembers = membersIds.filter((id) => !exsistingMembers.has(id));
 
       const updateAttendees = await prisma.attendees.update({
         where: { id: id },
         data: {
-          Members_ID: {
+          Members_id: {
             push: newMembers,
           },
         },
