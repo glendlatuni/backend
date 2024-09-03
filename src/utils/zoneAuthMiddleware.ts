@@ -1,37 +1,37 @@
-
 import { GraphQLResolveInfo } from "graphql/type/definition";
 
 export const zoneAuthMiddleware = async (
   resolve: (arg0: any, arg1: any, arg2: any, arg3: any) => any,
   root: any,
   args: { where: any },
-  context: { user?: {  Zones: any, FullName: any, Role: any } } ,
+  context: {
+    user?: {
+      FullName: string;
+      Role: any;
+      Family: {
+        Rayon: number;
+      };
+    };
+  },
   info: GraphQLResolveInfo
 ) => {
-
-
   const notAuthRequiredOperation = new Set(["registerNewUser", "login"]);
 
   const currentOperation = info?.fieldNodes[0]?.name?.value;
   const parent = info?.parentType?.name;
 
-
-
   if (context.user?.Role === "SUPERUSER") {
-    
     return resolve(root, args, context, info);
   }
 
-  // Periksa apakah operasi saat ini adalah operasi yang tidak memerlukan autentikasi
   if (notAuthRequiredOperation.has(currentOperation) && parent === "Mutation") {
     return resolve(root, args, context, info);
   }
 
-  // deklarasi variabel user beradsarkan zona
-  const userZone = context?.user?.Zones;
+  const userZone = context?.user?.Family.Rayon;
 
+  console.log("INI ADALAH ZONA", userZone);
 
-  // Jika bukan operasi yang dikecualikan, periksa autentikasi
   if (parent === "Mutation" || parent === "Query") {
     if (!context?.user) {
       throw new Error("Zone filter requires authentication. Not authenticated");
@@ -42,9 +42,11 @@ export const zoneAuthMiddleware = async (
     }
   }
 
-
   const zoneRestrictedOperation = new Set([
     "Query.queryGetMember",
+    "Query.queryGetFamily",
+    "Mutation.updateFamily",
+    "Mutation.createFamily",
   ]);
 
   if (zoneRestrictedOperation.has(currentOperation)) {

@@ -1,6 +1,24 @@
-import { PrismaClient, Schedule, Members } from "@prisma/client";
+import { PrismaClient, Schedule } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+type memberByRayonFilter = {
+  Member: {
+    Family: {
+      Rayon: number | null;
+    };
+  };
+};
+
+function createMemberByRayonFilter(rayon: number | null): memberByRayonFilter {
+  return {
+    Member: {
+      Family: {
+        Rayon: rayon,
+      },
+    },
+  };
+}
 
 export class scheduleServices {
   async serviceCreateSchedule(data: Omit<Schedule, "id">): Promise<Schedule> {
@@ -18,6 +36,31 @@ export class scheduleServices {
       // Cek apakah leader sedang aktif dalam bertugas
       if (!onDuty.onDuty) throw new Error("Leader not on duty");
 
+      // Fungsi untuk mendapatkan KSP dari member
+      async function getMemberKSP(
+        memberId: string | null
+      ): Promise<string | null> {
+        if (!memberId) return null;
+        const member = await prisma.members.findUnique({
+          where: { id: memberId },
+          select: {
+            Liturgos : true,
+            Family: {
+              select: { KSP: true },
+            },
+          },
+        });
+        return member?.Family.KSP || null;
+      }
+
+      // Dapatkan KSP untuk Liturgos dan Member
+      const liturgosKSP = await getMemberKSP(data.Liturgos_id);
+      const memberKSP = await getMemberKSP(data.Member_id);
+
+      if (liturgosKSP && memberKSP && liturgosKSP !== memberKSP) {
+        throw new Error(`Liturgos and Member must be from  ${memberKSP}`);
+      }
+
       // Persiapkan data untuk membuat schedule
       const scheduleData: any = {
         Member_id: data.Member_id,
@@ -31,7 +74,6 @@ export class scheduleServices {
         Liturgos_id: data.Liturgos_id,
         Description: data.Description,
         Leaders_id: data.Leaders_id,
-        
       };
 
       // Jika member_id ada, tambahkan ke scheduleData
@@ -49,13 +91,48 @@ export class scheduleServices {
     }
   }
 
-  async serviceGetSchedule(): Promise<Schedule[]> {
+  async serviceGetSchedule(
+    rayon: number | null,
+    isSuperUser: Boolean = false
+  ): Promise<Schedule[]> {
     try {
+      const filter = isSuperUser
+        ? {}
+        : rayon
+        ? createMemberByRayonFilter(rayon)
+        : {};
+
       return await prisma.schedule.findMany({
+        where: filter,
         include: {
-          Member: true,
-          IsLeaders: true,
-          Liturgos: true,
+          Member: {
+            select: {
+              FullName: true,
+              Category: true,
+              Family: {
+                select: {
+                  Address: true,
+                  Rayon: true,
+                  KSP: true,
+                },
+              },
+            },
+          },
+          Liturgos: {
+            select: {
+              FullName: true,
+            },
+          },
+          IsLeaders: {
+            select: {
+              Title: true,
+              Member: {
+                select: {
+                  FullName: true,
+                },
+              },
+            },
+          },
         },
       });
     } catch (error) {
@@ -64,14 +141,49 @@ export class scheduleServices {
     }
   }
 
-  async serviceGetScheduleByID(id: string): Promise<Members | null> {
+  async serviceGetScheduleByID(
+    id: string,
+    rayon: number,
+    isSuperUser: boolean = false
+  ): Promise<Schedule | null> {
     try {
-      return await prisma.members.findFirst({
+      const getSchedule = await prisma.schedule.findFirst({
         where: { id: id },
         include: {
-          Schedule: true,
+          Liturgos: {
+            select: {
+              FullName: true,
+            },
+          },
+          IsLeaders: {
+            select: {
+              Title: true,
+              Member: {
+                select: {
+                  FullName: true,
+                },
+              },
+            },
+          },
+          Member: {
+            select: {
+              Family: {
+                select: {
+                  Rayon: true,
+                },
+              },
+            },
+          },
         },
       });
+      if (!getSchedule) {
+        throw new Error("Schedule not found");
+      }
+
+      if (isSuperUser || getSchedule.Member?.Family.Rayon === rayon) {
+        return getSchedule;
+      }
+      return null;
     } catch (error) {
       console.error("Error in serviceGetScheduleByID:", error);
       throw error;
@@ -89,31 +201,30 @@ export class scheduleServices {
 
   async serviceGetScheduleBySearch(
     search: string,
-    searchFields: (keyof Schedule| "Members.KSP")[] = ['Day']
+    searchFields: (keyof Schedule | "Members.KSP")[] = ["Day"]
   ): Promise<Schedule[]> {
     const whereCondition = searchFields.reduce((acc, field) => {
       if (field === "Members.KSP") {
         acc.Members = {
           KSP: {
             contains: search,
-            mode: 'insensitive',
-          }
-        }
-      }else{
+            mode: "insensitive",
+          },
+        };
+      } else {
         acc[field as keyof Schedule] = {
           contains: search,
-          mode: 'insensitive',
+          mode: "insensitive",
         };
       }
-      
-      
+
       return acc;
     }, {} as Record<string, any>);
-  
+
     return await prisma.schedule.findMany({
       where: {
-        OR: Object.entries(whereCondition).map(([field, condition]) => 
-          field === 'Members' ? { Member: condition } : { [field]: condition }
+        OR: Object.entries(whereCondition).map(([field, condition]) =>
+          field === "Members" ? { Member: condition } : { [field]: condition }
         ),
       },
       include: {

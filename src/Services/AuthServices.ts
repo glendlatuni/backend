@@ -2,12 +2,15 @@ import { PrismaClient, User } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const prisma = new PrismaClient();
+import {
+  generateRefreshToken,
+  saveRefreshToken,
+  verifyRefreshToken,
+} from "../utils/RefreshToken";
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+const prisma = new PrismaClient();
 
 export class AuthServices {
- 
-
   async register(Email: string, Password: string, Members_Id: string) {
     if (!Email || !Password || !Members_Id) {
       throw new Error("Email, password, and memberId are required");
@@ -50,12 +53,15 @@ export class AuthServices {
         },
       });
 
-      
       const token = jwt.sign({ memberID: newUser.Member_id }, JWT_SECRET, {
-        expiresIn: "1d",
+        expiresIn: "15m",
       });
 
-      return { user: newUser, token };
+      const refreshToken = generateRefreshToken(newUser.id);
+
+      await saveRefreshToken(newUser.id, refreshToken);
+
+      return { user: newUser, token, refreshToken };
     } catch (error) {
       console.error(error);
       throw error;
@@ -82,23 +88,51 @@ export class AuthServices {
       }
 
       // Verifikasi password
-      const isPasswordValid = await bcrypt.compare(
-        Password,
-        user.Password
-      );
+      const isPasswordValid = await bcrypt.compare(Password, user.Password);
       if (!isPasswordValid) {
         throw new Error("Invalid email or password");
       }
 
       // Generate token
       const token = jwt.sign({ memberID: user.Member_id }, JWT_SECRET, {
-        expiresIn: "1d",
+        expiresIn: "15m",
       });
 
-      return { user, token };
+      const refreshToken = generateRefreshToken(user.id);
+      await saveRefreshToken(user.id, refreshToken);
+
+      return { user, token, refreshToken };
     } catch (error) {
       console.error(error);
       throw error;
+    }
+  }
+
+  async logout(userId: string) {
+    try {
+      await prisma.refreshToken.deleteMany({
+        where: {
+          userId: userId,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    try {
+      const user = await verifyRefreshToken(refreshToken);
+      const newAccessToken = jwt.sign(
+        { memberID: user?.Member_id },
+        JWT_SECRET,
+        {
+          expiresIn: "15m",
+        }
+      );
+      return newAccessToken;
+    } catch (error) {
+      throw new Error("Invalid refresh token");
     }
   }
 

@@ -1,67 +1,125 @@
 import { membersService } from "../../Services/MemberServices";
 import { AuthenticationError, UserInputError } from "apollo-server-core";
+
 const MemberServices = new membersService();
 
 interface User {
-  Role?: string;
-  IsLeaders?: {
-    Admin?: boolean;
+  id: string;
+  Role: string;
+  IsLeaders: {
+    Admin: boolean;
+  };
+  Family: {
+    Rayon: number;
+    FamilyMembers?: {
+      Role: string;
+      Liturgos: boolean;
+      IsLeaders: {
+        Admin: boolean;
+      };
+    };
   };
 }
 
 export const MemberResolvers = {
   Query: {
-    queryGetMember: async (_: any, _args: any, context: any) => {
-      const zones = context.user?.Zones;
-      const isSuperUser = context.user?.Role === "SUPERUSER";
-      return await MemberServices.servicesGetMember(zones, isSuperUser);
-    },
-    memberSearch: async (_: any, args: { search: string}, context: any) => {
-      const zones = context.user?.Zones;
-      const isSuperUser = context.user?.Role === "SUPERUSER";
-      return await MemberServices.servicesGetMemberBySearch(args.search, zones, isSuperUser);
+    queryGetMember: async (_: any, _args: any, { user }: { user: User }) => {
+      const {
+        Family: { Rayon },
+        Role,
+      } = user;
+
+      return await MemberServices.servicesGetMember(
+        Rayon,
+        Role === "SUPERUSER"
+      );
     },
 
-    queryGetKSP: async (_: any, args: { search: string}, context: any) => {
-      const zones = context.user?.Zones;
-      const isSuperUser = context.user?.Role === "SUPERUSER";
-      return await MemberServices.serviceGetMemberByKSP(args.search, zones, isSuperUser);
+    queryGetMemberCanBeLiturgos: async (
+      _: any,
+      _args: any,
+      { user }: { user: User }
+    ) => {
+      const {
+        Family: { Rayon },
+        Role,
+      } = user;
+
+      return await MemberServices.ServiceGetMemberCanBeLiturgos(Rayon, Role === "SUPERUSER");
     },
 
-    getMemberByID: async (_: any, args: { id: string }, context: any) => {
-      const zones = context.user?.Zones;
-      const isSuperUser = context.user?.Role === "SUPERUSER";
-      return await MemberServices.servicesGetMemberByID(args.id, zones, isSuperUser);
+    memberSearch: async (
+      _: any,
+      { search }: { search: string },
+      { user }: { user: User }
+    ) => {
+      const {
+        Family: { Rayon },
+        Role,
+      } = user;
+      console.log("User data:", user);
+      try {
+        return await MemberServices.servicesGetMemberBySearch(
+          search,
+          Rayon,
+          Role === "SUPERUSER"
+        );
+      } catch (error) {
+        console.error("Error in memberSearch:", error);
+        throw new Error("An error occurred while searching for members");
+      }
+    },
+
+    queryGetKSP: async (
+      _: any,
+      { search }: { search: string },
+      { user }: { user: User }
+    ) => {
+      const {
+        Family: { Rayon },
+        Role,
+      } = user;
+      return await MemberServices.serviceGetMemberByKSP(
+        search,
+        Rayon,
+        Role === "SUPERUSER"
+      );
+    },
+
+    getMemberByID: async (
+      _: any,
+      { id }: { id: string },
+      { user }: { user: User }
+    ) => {
+      const {
+        Family: { Rayon },
+        Role,
+      } = user;
+      return await MemberServices.servicesGetMemberByID(
+        id,
+        Rayon,
+        Role === "SUPERUSER"
+      );
     },
   },
 
   Mutation: {
-    createMember: async (_: any, args: any, { user }: { user: User }) => {
-     
-      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
-        console.log("You are not authorized to perform this action.");
-
+    createMember: async (_: any, { data }: any, { user }: { user: User }) => {
+      if (user.Role === "MEMBERS") {
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
       }
 
       try {
-         // block for avoid duplicate
         const existingMember = await MemberServices.avoidDuplicate(
-          args.data.FullName,
-          args.data.BirthDate
+          data.FullName,
+          data.BirthDate
         );
-
         if (existingMember) {
           throw new UserInputError("User already exists");
         }
-
-        const createNewMember = await MemberServices.servicesCreateMember(
-          args.data
-        );
-
-        return createNewMember;
+        return await MemberServices.servicesCreateMember(data);
       } catch (error) {
         if (
           error instanceof AuthenticationError ||
@@ -74,10 +132,12 @@ export const MemberResolvers = {
       }
     },
 
-    updateMember: async (_: any, args: any, { user }: { user: User }) => {
-      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
-        console.log("You are not authorized to perform this action.");
-
+    updateMember: async (
+      _: any,
+      { id, data }: any,
+      { user }: { user: User }
+    ) => {
+      if (user.Family?.FamilyMembers?.Role === "MEMBERS") {
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
@@ -85,69 +145,64 @@ export const MemberResolvers = {
 
       try {
         const updateDataMember = await MemberServices.servicesUpdateMember(
-          args.id,
-          args.data
+          id,
+          data
         );
-
-        if (updateDataMember === null) {
+        if (!updateDataMember) {
           throw new Error("No data found");
         }
-
         console.log("Member updated successfully:", updateDataMember.FullName);
-
-        console.log("Updated by Admin:", user?.IsLeaders);
-
         return updateDataMember;
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error updating member:", error);
+        throw error;
+      }
     },
 
     deleteMember: async (
       _: any,
-      args: { id: string },
+      { id }: { id: string },
       { user }: { user: User }
     ) => {
-      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
-        console.log("You are not authorized to perform this action.");
-
+      if (user.Family?.FamilyMembers?.Role === "MEMBERS") {
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
       }
 
       try {
-        const deleteMember = await MemberServices.servicesDeleteMember(args.id);
-
-        return deleteMember;
+        return await MemberServices.servicesDeleteMember(id);
       } catch (error) {
-        throw new error();
+        console.error("Error deleting member:", error);
+        throw error;
       }
     },
 
-    updateMemberPhoto: async (_: any, args: any) => {
+    updateMemberPhoto: async (_: any, { id, data }: any) => {
       try {
-        return await MemberServices.servicesUpdateMember(args.id, args.data);
+        return await MemberServices.servicesUpdateMember(id, data);
       } catch (error) {
-        throw new error();
+        console.error("Error updating member photo:", error);
+        throw error;
       }
     },
 
     updateAdminMemberRole: async (
       _: any,
-      args: any,
+      { id, data }: any,
       { user }: { user: User }
     ) => {
-      if (user?.Role === "MEMBER" && !user?.IsLeaders?.Admin) {
-        console.log("You are not authorized to perform this action.");
-
+      if (user.Family?.FamilyMembers?.Role === "MEMBERS") {
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
       }
 
       try {
-        return await MemberServices.servicesUpdateMember(args.id, args.data);
+        return await MemberServices.servicesUpdateMember(id, data);
       } catch (error) {
-        throw new error();
+        console.error("Error updating admin member role:", error);
+        throw error;
       }
     },
   },
