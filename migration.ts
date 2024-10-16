@@ -1,17 +1,52 @@
-// import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
-// async function migrate() {
-  // Update semua Family yang belum memiliki Rayon
-  // await prisma.family.updateMany({
-  //   where: {
-  //     Rayon: null,
-  //   },
+async function main() {
+
+try {
+  // Menghitung jumlah total record
+  // const totalMembers = await prisma.members.count();
+
+  // Mengupdate semua record dengan FamilyStatus = true
+  // const result = await prisma.members.updateMany({
   //   data: {
-  //     Rayon: 0, 
+  //    MemberStatus: true,
   //   },
   // });
+
+
+  const updateParents = await prisma.members.updateMany({
+    where: {
+      AND: [
+        { MarriageStatus: null },
+        { FamilyPosition: { in: ["Bapak", "Ibu"] } }
+      ]
+    },
+    data: { MarriageStatus: "Kawin" }
+  });
+  
+  const updateChildren = await prisma.members.updateMany({
+    where: {
+      AND: [
+        { MarriageStatus: null },
+        { FamilyPosition: { in: ["Anak", "Anak 1", "Anak 2", "Anak 3", "anak"] } }
+      ]
+    },
+    data: { MarriageStatus: "Belum Kawin" }
+  });
+  
+return { updateParents, updateChildren };
+ 
+
+
+
+} catch (error) {
+  console.error('Error updating members:', error);
+} finally {
+  await prisma.$disconnect();
+}
+  
 
   // const families = await prisma.family.findMany({
   //   include: {
@@ -47,6 +82,6 @@
     
 //   });
 //   console.log("Zones field deleted successfully");
-// }
 
-// migrate();
+}
+main()

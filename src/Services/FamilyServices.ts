@@ -35,11 +35,49 @@ export class familyServices {
             Category: true,
             Gender: true,
             IsLeaders: true,
-      
+            BirthPlace: true,
+            BirthDate: true,
           },
         },
       },
     });
+  }
+
+
+  async serviceGetFamilyPagination(
+    rayon: number | null,
+    isSuperUser: Boolean = false,
+    page: number = 1,
+    pageSize: number = 10
+  ): Promise<{ data: Family[]; totalCount: number; totalPages: number }> {
+    const filter = isSuperUser ? {} : { Rayon: rayon };
+    const skip = (page - 1) * pageSize;
+  
+    const [data, totalCount] = await Promise.all([
+      prisma.family.findMany({
+        where: filter,
+        include: {
+          FamilyMembers: {
+            select: {
+              id: true,
+              FullName: true,
+              Category: true,
+              Gender: true,
+              IsLeaders: true,
+              BirthPlace: true,
+              BirthDate: true,
+            },
+          },
+        },
+        skip: skip,
+        take: pageSize,
+      }),
+      prisma.family.count({ where: filter }),
+    ]);
+  
+    const totalPages = Math.ceil(totalCount / pageSize);
+  
+    return { data, totalCount, totalPages };
   }
 
   // get family by ID
@@ -63,6 +101,29 @@ export class familyServices {
     return null;
   }
 
+  async getCurrentFamilyUser(userId: string): Promise<Family | null> {
+    return await prisma.family.findFirst({
+      where: {
+        FamilyMembers: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+      include: {
+        FamilyMembers: {
+          select: {
+            id: true,
+            FullName: true,
+            Category: true,
+            Gender: true,
+            IsLeaders: true,
+          },
+        },
+      },
+    });
+  }
+
   // update family
   async servicesUpdateFamily(
     id: string,
@@ -83,7 +144,6 @@ export class familyServices {
 
     return await prisma.family.update({ where: { id }, data });
   }
-
 
   // get family by name
   async servicesGetFamilyBySearch(
@@ -110,11 +170,8 @@ export class familyServices {
 
       include: {
         FamilyMembers: {
-
           select: {
-            
             FullName: true,
-    
           },
         },
       },

@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo } from "graphql/type/definition";
+import { noAuthReq, authReq } from "./ListOpperation";
 
 export const zoneAuthMiddleware = async (
   resolve: (arg0: any, arg1: any, arg2: any, arg3: any) => any,
@@ -8,6 +9,9 @@ export const zoneAuthMiddleware = async (
     user?: {
       FullName: string;
       Role: any;
+      User: {
+        verifyStatus: boolean;
+      }
       Family: {
         Rayon: number;
       };
@@ -15,7 +19,7 @@ export const zoneAuthMiddleware = async (
   },
   info: GraphQLResolveInfo
 ) => {
-  const notAuthRequiredOperation = new Set(["registerNewUser", "login"]);
+  const notAuthRequiredOperation = new Set(noAuthReq);
 
   const currentOperation = info?.fieldNodes[0]?.name?.value;
   const parent = info?.parentType?.name;
@@ -24,17 +28,25 @@ export const zoneAuthMiddleware = async (
     return resolve(root, args, context, info);
   }
 
-  if (notAuthRequiredOperation.has(currentOperation) && parent === "Mutation") {
+  if (notAuthRequiredOperation.has(currentOperation)) {
     return resolve(root, args, context, info);
   }
 
   const userZone = context?.user?.Family.Rayon;
 
-  console.log("INI ADALAH ZONA", userZone);
+  // console.log("INI ADALAH ZONA", userZone);
+  // console.log("Status verifikasi", context?.user?.User.verifyStatus);
+  // console.log("ini adalah operation", currentOperation);
+  
+
 
   if (parent === "Mutation" || parent === "Query") {
     if (!context?.user) {
       throw new Error("Zone filter requires authentication. Not authenticated");
+    }
+
+    if (!context?.user?.User?.verifyStatus) {
+      throw new Error("User is not verified");
     }
 
     if (!userZone) {
@@ -42,12 +54,7 @@ export const zoneAuthMiddleware = async (
     }
   }
 
-  const zoneRestrictedOperation = new Set([
-    "Query.queryGetMember",
-    "Query.queryGetFamily",
-    "Mutation.updateFamily",
-    "Mutation.createFamily",
-  ]);
+  const zoneRestrictedOperation = new Set(authReq);
 
   if (zoneRestrictedOperation.has(currentOperation)) {
     args.where = {
@@ -57,7 +64,7 @@ export const zoneAuthMiddleware = async (
   }
 
   console.log(
-    `Applying Zone filter: ${userZone} for operation: ${currentOperation}`
+    `Applying Zone filter: ${userZone} for operation: ${currentOperation} and parent: ${currentOperation}`
   );
 
   return resolve(root, args, context, info);

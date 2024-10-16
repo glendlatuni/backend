@@ -5,6 +5,8 @@ import { LeaderResolvers } from "./Leaders.Resolvers";
 import { ScheduleResolvers } from "./Schedule.Resolvers";
 import { FamilyResolvers } from "./Family.Resolvers";
 import { AuthResolvers } from "./AuthResolvers";
+import { FetchingDataResolvers } from "./fetchingDataResolvers";
+import { CountResolvers } from "./Count.Resolvers";
 
 
 const margeResolvers = {
@@ -14,6 +16,9 @@ const margeResolvers = {
     ...FamilyResolvers.Query,
     ...LeaderResolvers.Query,
     ...ScheduleResolvers.Query,
+    ...AuthResolvers.Query,
+    ...FetchingDataResolvers.Query,
+    ...CountResolvers.Query
   
   },
 

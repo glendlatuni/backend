@@ -45,7 +45,10 @@ export const MemberResolvers = {
         Role,
       } = user;
 
-      return await MemberServices.ServiceGetMemberCanBeLiturgos(Rayon, Role === "SUPERUSER");
+      return await MemberServices.ServiceGetMemberCanBeLiturgos(
+        Rayon,
+        Role === "SUPERUSER"
+      );
     },
 
     memberSearch: async (
@@ -86,22 +89,27 @@ export const MemberResolvers = {
       );
     },
 
-    getMemberByID: async (
-      _: any,
-      { id }: { id: string },
-      { user }: { user: User }
-    ) => {
-      const {
-        Family: { Rayon },
-        Role,
-      } = user;
-      return await MemberServices.servicesGetMemberByID(
-        id,
-        Rayon,
-        Role === "SUPERUSER"
-      );
+    getMemberByID: async (_: any, { id }: { id: string }, { user }: { user: User }) => {
+      console.log("GetMemberByID called with id:", id);
+      console.log("User context:", user);
+    
+      if (!user) {
+        throw new AuthenticationError("You must be logged in to perform this action");
+      }
+    
+      const { Family: { Rayon }, Role } = user;
+      
+      try {
+        const member = await MemberServices.servicesGetMemberByID(id, Rayon, Role === "SUPERUSER");
+        console.log("Member found:", member);
+        return member;
+      } catch (error) {
+        console.error("Error in getMemberByID:", error);
+        throw error;
+      }
     },
   },
+
 
   Mutation: {
     createMember: async (_: any, { data }: any, { user }: { user: User }) => {

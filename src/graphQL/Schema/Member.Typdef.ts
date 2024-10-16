@@ -9,16 +9,27 @@ export const memberTypedef = gql`
     BirthDate: String
     FamilyPosition: String!
     Category: String!
+    MariageStatus: String!
     Family: Family
     IsLeaders: IsLeaders
-    PhoneNumber: String!
     User: User
     Leaders: Boolean!
     Liturgos: Boolean!
-    Schedule: Schedule
+    Schedule: Jadwal
     profilePhoto: String
     Attendees: [Attendees!]!
     Role: String
+  }
+
+  type Jadwal{
+    id: ID
+    Category: String
+    Date: String
+    Day: String
+    Month: String
+    Years: String
+    Time: String
+    Address: String
   }
 
   input CreateMemberInput {
@@ -26,15 +37,28 @@ export const memberTypedef = gql`
     FullName: String!
     Gender: String!
     BirthPlace: String!
-    BirthDate: String
+    BirthDate: String!
+    MariageStatus: String!
     FamilyPosition: String!
     Category: String!
     Family_id: ID! # Gunakan ID untuk relasi
-    PhoneNumber: String!
     user_id: ID # Opsional, gunakan ID untuk relasi
     Leaders: Boolean!
     Liturgos: Boolean!
     ProfilePhoto: String
+  }
+
+  input updateMemberInput {
+    FullName: String
+    Gender: String
+    BirthDate: String
+    BirthPlace: String
+    FamilyPosition: String
+    Category: String
+    Family_id: ID
+    Leaders: Boolean
+    Liturgos: Boolean
+
   }
 
   input memberUploadPhoto {
@@ -55,7 +79,7 @@ export const memberTypedef = gql`
 
   type Mutation {
     createMember(data: CreateMemberInput!): Members
-    updateMember(id: ID!, data: CreateMemberInput!): Members
+    updateMember(id: ID!, data: updateMemberInput!): Members
     deleteMember(id: ID!): Members
     updateMemberPhoto(id: ID!, data: memberUploadPhoto!): Members
     updateAdminMemberRole(id: ID!, data: updateAdminRole!): Members

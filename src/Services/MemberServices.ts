@@ -6,7 +6,7 @@ type memberByRayonFilter = {
   Family: {
     Rayon: number | null;
   };
-Liturgos: boolean;
+  Liturgos: boolean;
 };
 
 function createMemberByRayonFilter(rayon: number | null): memberByRayonFilter {
@@ -52,9 +52,8 @@ export class membersService {
       ? {}
       : rayon
       ? createMemberByRayonFilter(rayon)
-      : {}; 
+      : {};
 
-      
     return await prisma.members.findMany({
       where: filter,
       include: {
@@ -68,42 +67,40 @@ export class membersService {
     });
   }
 
-async ServiceGetMemberCanBeLiturgos(
-  rayon: number | null,
-  isSuperUser: Boolean = false
-): Promise<Members[]> {
-  let filter = {Liturgos:true}
-  if (!isSuperUser && rayon !== null) {
-filter ={
-  ...filter,
-  ...createMemberByRayonFilter(rayon),
-}
+  async ServiceGetMemberCanBeLiturgos(
+    rayon: number | null,
+    isSuperUser: Boolean = false
+  ): Promise<Members[]> {
+    let filter = { Liturgos: true };
+    if (!isSuperUser && rayon !== null) {
+      filter = {
+        ...filter,
+        ...createMemberByRayonFilter(rayon),
+      };
+    }
+    return await prisma.members.findMany({
+      where: filter,
+      include: {
+        ScheduleAsLiturgos: true,
+        Family: true,
+        Attendees: true,
+        IsLeaders: true,
+        Schedule: true,
+        User: true,
+      },
+    });
   }
-  return await prisma.members.findMany({
-    where: filter,
-    include: {
-      ScheduleAsLiturgos: true,
-      Family: true,
-      Attendees: true,
-      IsLeaders: true,
-      Schedule: true,
-      User: true,
-    },
-  });
-}
-
-
 
   // get members by search of name
   async servicesGetMemberBySearch(
     search: string,
-    rayon: number | null, 
+    rayon: number | null,
     isSuperUser: boolean = false
   ): Promise<Members[]> {
-    let  filterZone = {};
-if (!isSuperUser && rayon !== null) {
-  filterZone = createMemberByRayonFilter(rayon);
-}
+    let filterZone = {};
+    if (!isSuperUser && rayon !== null) {
+      filterZone = createMemberByRayonFilter(rayon);
+    }
 
     return await prisma.members.findMany({
       where: {
@@ -121,11 +118,11 @@ if (!isSuperUser && rayon !== null) {
         Family: true,
         Schedule: true,
         Attendees: true,
-        IsLeaders:{
-          select:{
-            Title:true
-          }
-        }
+        IsLeaders: {
+          select: {
+            Title: true,
+          },
+        },
       },
     });
   }
@@ -148,7 +145,7 @@ if (!isSuperUser && rayon !== null) {
             Family: {
               KSP: {
                 contains: search,
-                mode: "insensitive"
+                mode: "insensitive",
               },
             },
           },
@@ -191,6 +188,10 @@ if (!isSuperUser && rayon !== null) {
 
     return null;
   }
+
+  // get member by ID For login page
+
+
 
   // Update Many Members
 

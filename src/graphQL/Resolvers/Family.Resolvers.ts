@@ -4,10 +4,12 @@ import { familyServices } from "../../Services/FamilyServices";
 const FamilyServices = new familyServices();
 
 interface User {
+  id: string;
   FullName: string;
   Role: string;
   IsLeaders: { Admin?: boolean };
   Family: {
+    id: string;
     Rayon: number;
   };
 }
@@ -21,6 +23,28 @@ export const FamilyResolvers = {
       return await FamilyServices.servicesGetFamily(zones, isSuperUser);
     },
 
+    queryGetFamilyPagination: async ( _: any, args: any, User: { user: User } ) => {
+      const zones = User.user.Family.Rayon;
+      const isSuperUser = User.user.Role === "SUPERUSER";
+      return await FamilyServices.serviceGetFamilyPagination(zones, isSuperUser, args.page, args.pageSize);
+    },
+
+    queryGetCurrentFamilyUser: async (
+      _: any,
+      _args: any,
+      User: { user: User }
+    ) => {
+      const current = User.user;
+
+      if (!current) {
+        throw new AuthenticationError("User not found");
+      }
+
+      const user = await FamilyServices.getCurrentFamilyUser(current.id);
+
+      return user;
+    },
+
     queryGetFamilyByID: async (_: any, args: { id: string }, context: any) => {
       const zones = context?.user?.Family?.Rayon;
 
@@ -32,7 +56,11 @@ export const FamilyResolvers = {
       );
     },
 
-    familySearch: async (_: any, args: { search: string }, User: { user: User }) => {
+    familySearch: async (
+      _: any,
+      args: { search: string },
+      User: { user: User }
+    ) => {
       const zones = User.user.Family?.Rayon;
       const isSuperUser = User.user.Role === "SUPERUSER";
 
@@ -40,13 +68,15 @@ export const FamilyResolvers = {
       console.log("zones", zones);
 
       try {
-        return await FamilyServices.servicesGetFamilyBySearch(args.search, zones, isSuperUser);
+        return await FamilyServices.servicesGetFamilyBySearch(
+          args.search,
+          zones,
+          isSuperUser
+        );
       } catch (error) {
         console.error("Error in familySearch:", error);
         throw new Error("An error occurred while searching for families");
       }
-
-      
     },
 
     querySearchFamilyByKSP: async (
@@ -59,18 +89,15 @@ export const FamilyResolvers = {
 
       console.log("rayon", rayon);
 
-
       try {
-        
-      return await FamilyServices.servicesGetFamilyByKSP(
-        args.search,
-        rayon,
-        isSuperUser
-      );
+        return await FamilyServices.servicesGetFamilyByKSP(
+          args.search,
+          rayon,
+          isSuperUser
+        );
       } catch (error) {
         console.log(error);
       }
-
     },
   },
 
@@ -112,7 +139,6 @@ export const FamilyResolvers = {
     ) => {
       const rayon = User?.user?.Family?.Rayon;
       const isSuperUser = User?.user?.Role === "SUPERUSER";
-
 
       if (User?.user?.Role === "MEMBERS") {
         throw new AuthenticationError(
