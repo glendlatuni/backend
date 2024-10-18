@@ -32,7 +32,14 @@ const server = new ApolloServer({
 
 // Memulai server Apollo
 server.start().then(() => {
-  server.applyMiddleware({ app: app as any });
+  server.applyMiddleware({
+    app: app as any,
+
+    cors: {
+      origin: "http://localhost:3000",
+      credentials: true,
+    },
+  });
 
   // Memulai server Express
   app.listen({ port: 4000 }, () =>

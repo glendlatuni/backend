@@ -26,9 +26,58 @@ export const AuthResolvers = {
         Email,
         Password,
         Member_Id,
-      }: { Email: string; Password: string; Member_Id: string }
+        PhoneNumber,
+      }: {
+        Email: string;
+        Password: string;
+        Member_Id: string;
+        PhoneNumber: string;
+      }
     ) => {
-      return await authServices.register(Email, Password, Member_Id);
+      const register = await authServices.register(
+        Email,
+        Password,
+        Member_Id,
+        PhoneNumber
+      );
+      console.log("Register Success:", register.user.Member?.FullName);
+      return {
+        user: {
+          id: register.user.id,
+          email: register.user.Email,
+          memberId: register.user.Member_id,
+          PhoneNumber: register.user.PhoneNumber,
+        },
+        token: register.token,
+        refreshToken: register.refreshToken,
+      };
+    },
+
+    // verifyCode: async (
+    //   _: any,
+    //   { userId, verificationId, verificationCode }: { userId: string; verificationId: string; verificationCode: string }
+    // ) => {
+    //   const result = await authServices.verifyCode(userId, verificationCode, verificationId);
+    //   console.log("Verification Success:", result);
+    //   return result;
+    // },
+
+    refreshAccessToken: async (
+      _: any,
+      { refreshToken }: { refreshToken: string }
+    ) => {
+
+      try {
+        const newAccessToken = await authServices.refreshToken(
+          refreshToken
+        );
+        console.log("Refresh Access Token Success:", newAccessToken);
+        return newAccessToken;
+      } catch (error) {
+        console.error("Error refreshing access token:", error);
+        throw new Error('Failed to refresh access token');
+      }
+      
     },
 
     login: async (
@@ -37,8 +86,12 @@ export const AuthResolvers = {
     ) => {
       try {
         const result = await authServices.login(Email, Password);
-        console.log("Login Success:", result);
-        return result;
+        console.log("Login Success:", result.user.Member?.FullName);
+        return {
+          token: result.token,
+          refreshToken: result.refreshToken,
+          user: result.user,
+        };
       } catch (error) {
         console.log(error);
         if (error.message === "Invalid email or password") {

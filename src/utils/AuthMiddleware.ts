@@ -2,11 +2,28 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
+
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 const prisma = new PrismaClient();
 
 interface JwtPayload {
   memberID: string;
+}
+
+async function refreshAccessToken(refreshToken: string) {
+  try {
+    const refreshTokenRecord = await verifyRefreshToken(refreshToken);
+    const newAccessToken = jwt.sign(
+      { memberID: refreshTokenRecord.user?.Member_id },
+      JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+    return { user: refreshTokenRecord.user, newAccessToken };
+  } catch (error) {
+    throw new Error("Invalid or expired refresh token");
+  }
 }
 
 async function verifyRefreshToken(token: string) {
@@ -18,6 +35,8 @@ async function verifyRefreshToken(token: string) {
       user: true,
     },
   });
+
+  console.log(refreshTokenRecord);
 
   if (!refreshTokenRecord || refreshTokenRecord.expiresAt < new Date()) {
     throw new Error("Invalid or Expired refresh token");
@@ -39,6 +58,9 @@ const authMiddleware = async (
     return next(); // Tidak memblokir akses jika token tidak ada
   }
 
+
+
+
   try {
     const decoded = jwt.verify(
       token,
@@ -52,11 +74,18 @@ const authMiddleware = async (
         id: true,
         Role: true,
         FullName: true,
+        User:{
+          select:{
+            verifyStatus: true
+        }
+        },
         Liturgos: true,
         IsLeaders: true,
         Family: {
           select: {
+            id: true,
             Rayon: true,
+            KSP: true,
           }
         },
       },
@@ -73,15 +102,11 @@ const authMiddleware = async (
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError && refreshToken) {
+      console.log("Token expired. Refreshing...");
+      
       try {
-        const user = await verifyRefreshToken(refreshToken);
-        const newAccessToken = jwt.sign(
-          { memberID: user?.user?.Member_id },
-          JWT_SECRET,
-          {
-            expiresIn: "15m",
-          }
-        );
+        const {user, newAccessToken} = await refreshAccessToken(refreshToken);
+       
 
         if (req.res) {
           req.res.setHeader("X-New-Access-Token", newAccessToken);
@@ -91,7 +116,16 @@ const authMiddleware = async (
         return { user: null, tokenError: "Invalid refresh token" };
       }
     } else {
-      return { user: null, tokenError: "Invalid token" };
+      return res.status(401).json({
+     errors:[
+      {
+        message : "Authentication token is invalid or expired",
+        extensions:{
+          code : "Unauthorized"
+        }
+      }
+     ]
+      })
     }
   }
 };

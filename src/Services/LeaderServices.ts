@@ -22,9 +22,7 @@ function createMemberByRayonFilter(rayon: number | null): memberByRayonFilter {
 }
 
 export class leaderServices {
-  // **
 
-  // create leaders / majelis
   async serviceCreateLeader(data: Omit<IsLeaders, "id">): Promise<IsLeaders> {
 
     if(data.Members_id){

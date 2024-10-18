@@ -11,6 +11,12 @@ export const familyTypedef = gql`
     Address: String
   }
 
+  type FamilyPagination {
+  data: [Family!]!
+  totalCount: Int!
+  totalPages: Int!
+}
+
   input FamilyInput {
     FamilyName: String!
     Rayon: Int
@@ -23,6 +29,12 @@ export const familyTypedef = gql`
     queryGetFamilyByID(id: ID!): Family
     familySearch(search: String): [Family!]
     querySearchFamilyByKSP(search: String): [Family!]
+    queryGetCurrentFamilyUser: Family
+    queryGetFamilyPagination(
+      rayon: Int
+      page: Int
+      pageSize: Int
+    ): FamilyPagination
   }
 
   type Mutation {
