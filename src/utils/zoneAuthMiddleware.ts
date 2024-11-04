@@ -13,7 +13,9 @@ export const zoneAuthMiddleware = async (
         verifyStatus: boolean;
       }
       Family: {
-        Rayon: number;
+        Rayon: {
+          rayonNumber : number 
+        };
       };
     };
   },
@@ -32,11 +34,9 @@ export const zoneAuthMiddleware = async (
     return resolve(root, args, context, info);
   }
 
-  const userZone = context?.user?.Family.Rayon;
+  const userZone = context.user?.Family.Rayon.rayonNumber
+  console.log("INI ADALAH ZONA", userZone);
 
-  // console.log("INI ADALAH ZONA", userZone);
-  // console.log("Status verifikasi", context?.user?.User.verifyStatus);
-  // console.log("ini adalah operation", currentOperation);
   
 
 

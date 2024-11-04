@@ -10,7 +10,9 @@ interface User {
     Admin: boolean;
   };
   Family: {
-    Rayon: number;
+    Rayon: {
+      rayonNumber: number;
+    };
     FamilyMembers?: {
       Role: string;
       IsLeaders: {
@@ -39,7 +41,9 @@ export const ScheduleResolvers = {
   Query: {
     queryGetSchedule: async (_: any, _args: any, { user }: { user: User }) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
 
@@ -55,7 +59,9 @@ export const ScheduleResolvers = {
       { user }: { user: User }
     ) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
       return await ScheduleServices.serviceGetScheduleByID(id, Rayon,Role === "SUPERUSER");

@@ -6,8 +6,10 @@ const prisma = new PrismaClient();
 type memberByRayonFilter = {
   Member: {
     Family: {
-      Rayon: number | null;
-    };
+     Rayon:{
+      rayonNumber : number | null
+     }
+    }
   };
 };
 
@@ -15,7 +17,9 @@ function createMemberByRayonFilter(rayon: number | null): memberByRayonFilter {
   return {
     Member: {
       Family: {
-        Rayon: rayon,
+        Rayon: {
+          rayonNumber: rayon,
+        },
       },
     },
   };
@@ -55,7 +59,15 @@ export class leaderServices {
       include: {
         Member: {
           select: {
-            Family: true,
+            Family: {
+              select: {
+                Rayon: {
+                  select: {
+                    rayonNumber: true,
+                  }
+                }
+              }
+            },
             FullName: true,
           },
         },
@@ -65,7 +77,7 @@ export class leaderServices {
     if (!leader) {
       throw new Error("Leader not found");
     }
-    if (isSuperUser || leader.Member?.Family.Rayon === rayon) {
+    if (isSuperUser || leader.Member?.Family.Rayon.rayonNumber === rayon) {
       return leader;
     }
     throw new AuthenticationError("Data you are trying to access is restricted");
@@ -96,7 +108,11 @@ export class leaderServices {
             FullName: true,
             Family: {
               select: {
-                Rayon: true,
+                Rayon: {
+                  select: {
+                    rayonNumber : true
+                  }
+                }
                 
               }
             }

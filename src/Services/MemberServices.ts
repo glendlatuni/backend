@@ -1,10 +1,13 @@
+
 import { PrismaClient, Members } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 type memberByRayonFilter = {
   Family: {
-    Rayon: number | null;
+    Rayon:{
+      rayonNumber : number | null
+    }
   };
   Liturgos: boolean;
 };
@@ -12,7 +15,9 @@ type memberByRayonFilter = {
 function createMemberByRayonFilter(rayon: number | null): memberByRayonFilter {
   return {
     Family: {
-      Rayon: rayon,
+      Rayon: {
+        rayonNumber: rayon,
+      },
     },
     Liturgos: true,
   };
@@ -58,7 +63,12 @@ export class membersService {
       where: filter,
       include: {
         ScheduleAsLiturgos: true,
-        Family: true,
+        Family: {
+          select:{
+            Rayon: true,
+            KSP: true
+          }
+        },
         Attendees: true,
         IsLeaders: true,
         Schedule: true,
@@ -144,8 +154,10 @@ export class membersService {
           {
             Family: {
               KSP: {
-                contains: search,
-                mode: "insensitive",
+                kspname: {
+                  contains: search,
+                  mode: "insensitive" as const,
+                },
               },
             },
           },
@@ -173,7 +185,15 @@ export class membersService {
       include: {
         Schedule: true,
         User: true,
-        Family: true,
+        Family: {
+          select: {
+            Rayon: {
+              select: {
+                rayonNumber: true,
+              },
+            },
+          },
+        },
         Attendees: true,
         IsLeaders: true,
       },
@@ -182,20 +202,14 @@ export class membersService {
     if (!member) {
       throw new Error("Member not found");
     }
-    if (isSuperUser || member.Family.Rayon === rayon) {
+    if (isSuperUser || member.Family.Rayon.rayonNumber === rayon) {
       return member;
     }
 
     return null;
   }
 
-  // get member by ID For login page
 
-
-
-  // Update Many Members
-
-  // avoid duplicate
   async avoidDuplicate(
     fullName: string,
     birthDate: Date

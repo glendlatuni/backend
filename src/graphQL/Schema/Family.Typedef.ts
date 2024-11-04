@@ -6,21 +6,31 @@ export const familyTypedef = gql`
     FamilyName: String!
     FamilyMembers: [Members!]!
     IsLeaders: IsLeaders!
-    Rayon: Int!
-    KSP: String!
+    Rayon: Rayon
+    KSP: KSP
     Address: String
   }
 
+  type KSP {
+    id: ID!
+    kspname: String!
+  }
+
+  type Rayon {
+    id: ID!
+    rayonNumber: Int!
+  }
+
   type FamilyPagination {
-  data: [Family!]!
-  totalCount: Int!
-  totalPages: Int!
-}
+    data: [Family!]!
+    totalCount: Int!
+    totalPages: Int!
+  }
 
   input FamilyInput {
     FamilyName: String!
-    Rayon: Int
-    KSP: String
+    rayonId: ID
+    kspId: ID
     Address: String
   }
 
@@ -38,7 +48,7 @@ export const familyTypedef = gql`
   }
 
   type Mutation {
-    getFamily(id: ID!): Family
+ 
     createFamily(data: FamilyInput!): Family
     updateFamily(id: ID!, data: FamilyInput!): Family
   }

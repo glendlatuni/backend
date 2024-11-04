@@ -9,7 +9,7 @@ export const memberTypedef = gql`
     BirthDate: String
     FamilyPosition: String!
     Category: String!
-    MariageStatus: String!
+    MarriageStatus: String!
     Family: Family
     IsLeaders: IsLeaders
     User: User
@@ -38,7 +38,7 @@ export const memberTypedef = gql`
     Gender: String!
     BirthPlace: String!
     BirthDate: String!
-    MariageStatus: String!
+    MarriageStatus: String
     FamilyPosition: String!
     Category: String!
     Family_id: ID! # Gunakan ID untuk relasi
@@ -54,6 +54,7 @@ export const memberTypedef = gql`
     BirthDate: String
     BirthPlace: String
     FamilyPosition: String
+    MarriageStatus: String
     Category: String
     Family_id: ID
     Leaders: Boolean

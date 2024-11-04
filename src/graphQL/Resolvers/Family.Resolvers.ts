@@ -10,21 +10,25 @@ interface User {
   IsLeaders: { Admin?: boolean };
   Family: {
     id: string;
-    Rayon: number;
+    Rayon: {
+      rayonNumber: number;
+    };
   };
 }
 
 export const FamilyResolvers = {
   Query: {
     queryGetFamily: async (_: any, _args: any, User: { user: User }) => {
-      const zones = User.user.Family.Rayon;
+      const zones = User.user.Family.Rayon.rayonNumber;
       const isSuperUser = User.user.Role === "SUPERUSER";
+
+      
 
       return await FamilyServices.servicesGetFamily(zones, isSuperUser);
     },
 
     queryGetFamilyPagination: async ( _: any, args: any, User: { user: User } ) => {
-      const zones = User.user.Family.Rayon;
+      const zones = User.user.Family.Rayon.rayonNumber;
       const isSuperUser = User.user.Role === "SUPERUSER";
       return await FamilyServices.serviceGetFamilyPagination(zones, isSuperUser, args.page, args.pageSize);
     },
@@ -46,9 +50,13 @@ export const FamilyResolvers = {
     },
 
     queryGetFamilyByID: async (_: any, args: { id: string }, context: any) => {
-      const zones = context?.user?.Family?.Rayon;
+      const zones = context?.user?.Family?.Rayon.rayonNumber;
 
       const isSuperUser = context?.user?.Role === "SUPERUSER";
+
+      console.log("isSuperUser", isSuperUser);
+      console.log("zones", zones);
+
       return await FamilyServices.servicesGetFamilyByID(
         args.id,
         zones,
@@ -61,7 +69,7 @@ export const FamilyResolvers = {
       args: { search: string },
       User: { user: User }
     ) => {
-      const zones = User.user.Family?.Rayon;
+      const zones = User.user.Family?.Rayon.rayonNumber;
       const isSuperUser = User.user.Role === "SUPERUSER";
 
       console.log("isSuperUser", isSuperUser);
@@ -85,7 +93,7 @@ export const FamilyResolvers = {
       User: { user: User }
     ) => {
       const isSuperUser = User.user.Role === "SUPERUSER";
-      const rayon = User.user.Family.Rayon;
+      const rayon = User.user.Family.Rayon.rayonNumber;
 
       console.log("rayon", rayon);
 
@@ -107,7 +115,7 @@ export const FamilyResolvers = {
       const userRole = User.user.Role;
 
       if (userRole === "MEMBERS") {
-        console.log("You are not authorized to perform this action.");
+        console.log(`You are ${userRole} not authorized to perform this action.`);
         throw new AuthenticationError(
           "You are not authorized to perform this action."
         );
@@ -118,7 +126,8 @@ export const FamilyResolvers = {
         );
 
         if (existingFamily) {
-          throw new UserInputError("Family already exists");
+          
+          throw new UserInputError(`Family ${existingFamily.FamilyName} already exists`);
         }
 
         const createFamily = await FamilyServices.servicesCreateFamily(
@@ -137,7 +146,7 @@ export const FamilyResolvers = {
       args: { id: string; data: any },
       User: { user: User }
     ) => {
-      const rayon = User?.user?.Family?.Rayon;
+      const rayon = User?.user?.Family?.Rayon?.rayonNumber;
       const isSuperUser = User?.user?.Role === "SUPERUSER";
 
       if (User?.user?.Role === "MEMBERS") {

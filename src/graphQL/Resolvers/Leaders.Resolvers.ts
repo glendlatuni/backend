@@ -10,7 +10,9 @@ interface User {
     Admin: boolean;
   };
   Family: {
-    Rayon: number;
+    Rayon: {
+      rayonNumber: number;
+    };
     FamilyMembers: {
       Role: string;
       IsLeaders: {
@@ -24,7 +26,9 @@ export const LeaderResolvers = {
   Query: {
     queryGetLeaders: async (_: any, _args: any, { user }: { user: User }) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
       try {
@@ -44,7 +48,9 @@ export const LeaderResolvers = {
       { user }: { user: User }
     ) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
       return await LeaderServices.serviceGetLeaderBySearch(
@@ -60,7 +66,9 @@ export const LeaderResolvers = {
       { user }: { user: User }
     ) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
       return await LeaderServices.serviceGetLeaderByID(

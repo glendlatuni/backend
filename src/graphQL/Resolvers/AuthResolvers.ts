@@ -86,7 +86,7 @@ export const AuthResolvers = {
     ) => {
       try {
         const result = await authServices.login(Email, Password);
-        console.log("Login Success:", result.user.Member?.FullName);
+        // console.log("Login Success:", result.user.Member?.FullName);
         return {
           token: result.token,
           refreshToken: result.refreshToken,
@@ -100,6 +100,9 @@ export const AuthResolvers = {
         throw new ApolloError("An error occurred during login");
       }
     },
+
+  
+
     logout: async (_: any, { userId }: { userId: string }) => {
       const Logout = await authServices.logout(userId);
       console.log("Logout Success:", userId);

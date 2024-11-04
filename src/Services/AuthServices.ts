@@ -80,9 +80,13 @@ export class AuthServices {
           phoneVerificationCodeExpiresAt: expireAt,
           phoneVerificationCode: verificationCode,
         },
-        include: {
+        select: {
+          id: true,
+          Email: true,
+          Member_id: true,
+          PhoneNumber: true,
           Member: true,
-        },
+        }
       });
 
       // const formattedPhoneNumber = `+62${PhoneNumber.slice(1)}`;
@@ -168,8 +172,31 @@ export class AuthServices {
       // Cari user berdasarkan email
       const user = await prisma.user.findUnique({
         where: { Email: normalizedEmail },
-        include: { Member: true },
+        include: { 
+          Member:{
+
+            select: {
+              id: true,
+              FullName: true,
+              Category: true,
+              Gender: true,
+              IsLeaders: true,
+              BirthPlace: true,
+              BirthDate: true,
+              Role: true,
+              
+              User:{
+                select: {
+                  id: true,
+                  Member_id: true
+                }
+              }
+            }
+          }
+        },
       });
+
+
 
       if (!user) {
         throw new Error("Invalid email or password");
@@ -192,6 +219,8 @@ export class AuthServices {
       console.log("Login Success:", user.Member);
       console.log("Token:", token);
       
+      console.log("User:", user);
+      console.log("Member ID:", user?.Member_id);
 
       return { user, token, refreshToken };
     } catch (error) {

@@ -54,7 +54,7 @@ model Members {
   FullName           String
   Gender             String
   BirthPlace         String
-  MarriageStatus      String?
+  MarriageStatus     String?
   BirthDate          DateTime
   FamilyPosition     String
   Category           String
@@ -75,40 +75,41 @@ model Members {
   Role role @default(MEMBERS)
 }
 
+
+model Church {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  rayons    Rayon[]
+}
+
+model Rayon {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rayonNumber    Int
+  church    Church   @relation(fields: [churchId], references: [id])
+  churchId  String   @db.ObjectId
+  families  Family[]
+  ksps      KSP[]
+}
+
+model KSP {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  kspname      String
+  rayon     Rayon    @relation(fields: [rayonId], references: [id])
+  rayonId   String   @db.ObjectId
+  families  Family[]
+}
+
 model Family {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   FamilyName    String
-  Rayon         Int?
-  KSP           String
-  // KSP           KSP       @relation(fields: [KSP_id], references: [id], onDelete: Cascade)
-  // KSP_id        String @db.ObjectId
+  Rayon         Rayon     @relation(fields: [rayonId], references: [id])
+  rayonId       String    @db.ObjectId 
+  KSP           KSP       @relation(fields: [kspId], references: [id])
+  kspId         String    @db.ObjectId 
   Address       String
-  FamilySatus   Boolean?  @default(true) // true = aktif, false = tidak aktif digunakan untuk menghilangkan data jika keluarga tersebut telah pindah
+  FamilySatus   Boolean?  @default(true)
   FamilyMembers Members[]
 }
-
-// model basicInformation{
-//   id          String    @id @default(auto()) @map("_id") @db.ObjectId
-//   ChurchName  String
-//   Address     String
-//   Rayons       Rayon[]
-// }
-
-// model Rayon {
-//   id   String    @id @default(auto()) @map("_id") @db.ObjectId
-//   Rayon String
-//   gereja basicInformation @relation(fields: [basicInformation_id], references: [id], onDelete: Cascade)
-//   basicInformation_id String @db.ObjectId
-//   Ksps KSP[]
-// }
-
-// model KSP {
-//   id   String    @id @default(auto()) @map("_id") @db.ObjectId
-//   KSP  String
-//   rayon Rayon @relation(fields: [Rayon_id], references: [id], onDelete: Cascade)
-//   Rayon_id String @db.ObjectId
-//   family Family[]
-// }
 
 
 

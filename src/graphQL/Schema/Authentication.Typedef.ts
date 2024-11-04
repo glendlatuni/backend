@@ -20,8 +20,11 @@ export const AuthenticationtypeDefs = gql`
     user: User
     token: String
     refreshToken: String
+  
 
   }
+
+
 
   type RefreshTokenResponse {
     accessToken: String
@@ -37,6 +40,7 @@ export const AuthenticationtypeDefs = gql`
   }
 
   type Mutation {
+
     login(Email: String!, Password: String!): AuthPayload!
     registerNewUser(
       Email: String!

@@ -8,6 +8,7 @@ import mergeResolvers from "./src/graphQL/Resolvers/index";
 import { applyMiddleware } from "graphql-middleware";
 
 import dotenv from "dotenv";
+// import { GraphQLError } from "graphql";
 dotenv.config();
 
 const app = express();
@@ -26,6 +27,17 @@ const schemaWithMiddleware = applyMiddleware(schema, zoneAuthMiddleware);
 const server = new ApolloServer({
   schema: schemaWithMiddleware,
   context: ({ req }) => {
+    // console.log(req.headers);
+    // if ((req as any).authError) {
+    //   throw new GraphQLError('Not authenticated', {
+    //     extensions: { 
+    //       code: 'UNAUTHENTICATED',
+    //       message: (req as any).authError.message 
+    //     }
+    //   });
+    // }
+
+    
     return { user: (req as any).user };
   },
 });
@@ -35,10 +47,10 @@ server.start().then(() => {
   server.applyMiddleware({
     app: app as any,
 
-    cors: {
-      origin: "http://localhost:3000",
-      credentials: true,
-    },
+    // cors: {
+    //   origin: "http://localhost:3000",
+    //   credentials: true,
+    // },
   });
 
   // Memulai server Express

@@ -8,6 +8,7 @@ import { familyTypedef } from "./Family.Typedef";
 import { memberTypedef } from "./Member.Typdef";
 import { fetchingData } from "./fetchingData.Typedef";
 import { countTypedef } from "./Count.Typedef";
+import { basicInfoTypedef } from "./BasicInfoTypedef";
 
 
 
@@ -26,7 +27,9 @@ const margeTypedef: any = mergeTypeDefs([
 
   fetchingData,
 
-  countTypedef
+  countTypedef,
+  
+  basicInfoTypedef
 ]);
 
 export default margeTypedef;

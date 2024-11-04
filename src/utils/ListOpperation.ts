@@ -4,7 +4,8 @@ export const noAuthReq = [
     "login", 
     "logout",
     "fetchingGetMemberByID", 
-    "refreshAccessToken"
+    "refreshAccessToken",
+    "createBasicData"
 ]
 
 export const authReq = [

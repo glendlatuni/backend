@@ -9,7 +9,9 @@ interface User {
     Admin: boolean;
   };
   Family: {
-    Rayon: number;
+    Rayon: {
+      rayonNumber: number;
+    }
     FamilyMembers?: {
       Role: string;
       Liturgos: boolean;
@@ -30,7 +32,9 @@ export const CountResolvers = {
     },
     getMemberByGender: async (_: any, _args: any, { user }: { user: User } ) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
       
@@ -41,7 +45,9 @@ export const CountResolvers = {
     },
     getMemberByCategory: async (_: any, _args: any, { user }: { user: User } ) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
       

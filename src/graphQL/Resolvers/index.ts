@@ -7,6 +7,7 @@ import { FamilyResolvers } from "./Family.Resolvers";
 import { AuthResolvers } from "./AuthResolvers";
 import { FetchingDataResolvers } from "./fetchingDataResolvers";
 import { CountResolvers } from "./Count.Resolvers";
+import { BasicInfoResolvers } from "./BasicInfoResolver";
 
 
 const margeResolvers = {
@@ -18,7 +19,8 @@ const margeResolvers = {
     ...ScheduleResolvers.Query,
     ...AuthResolvers.Query,
     ...FetchingDataResolvers.Query,
-    ...CountResolvers.Query
+    ...CountResolvers.Query,
+    ...BasicInfoResolvers.Query
   
   },
 
@@ -29,6 +31,7 @@ const margeResolvers = {
     ...ScheduleResolvers.Mutation,
     ...FamilyResolvers.Mutation,
     ...AuthResolvers.Mutation,
+    ...BasicInfoResolvers.Mutation
   },
 };
 

@@ -5,7 +5,9 @@ const prisma = new PrismaClient();
 type memberByRayonFilter = {
   Member: {
     Family: {
-      Rayon: number | null;
+      Rayon: {
+        number: number | null;
+      };
     };
   };
 };
@@ -14,7 +16,9 @@ function createMemberByRayonFilter(rayon: number | null): memberByRayonFilter {
   return {
     Member: {
       Family: {
-        Rayon: rayon,
+        Rayon: {
+          number: rayon,
+        },
       },
     },
   };
@@ -44,13 +48,19 @@ export class scheduleServices {
         const member = await prisma.members.findUnique({
           where: { id: memberId },
           select: {
-            Liturgos : true,
+            Liturgos: true,
             Family: {
-              select: { KSP: true },
+              select: {
+       KSP: {
+         select: {
+           kspname: true,
+         }
+       },
+              },
             },
           },
         });
-        return member?.Family.KSP || null;
+        return member?.Family?.KSP?.kspname || null;
       }
 
       // Dapatkan KSP untuk Liturgos dan Member
@@ -112,8 +122,17 @@ export class scheduleServices {
               Family: {
                 select: {
                   Address: true,
-                  Rayon: true,
-                  KSP: true,
+                  Rayon: {
+                    select: {
+                      rayonNumber: true,
+                    }
+                  },
+                  KSP:{
+                    select: {
+                      kspname: true
+                    }
+
+                  }
                 },
               },
             },
@@ -169,7 +188,11 @@ export class scheduleServices {
             select: {
               Family: {
                 select: {
-                  Rayon: true,
+       Rayon: {
+         select: {
+           rayonNumber: true,
+         }
+       }
                 },
               },
             },
@@ -180,7 +203,10 @@ export class scheduleServices {
         throw new Error("Schedule not found");
       }
 
-      if (isSuperUser || getSchedule.Member?.Family.Rayon === rayon) {
+      if (
+        isSuperUser ||
+        getSchedule.Member?.Family?.Rayon.rayonNumber === rayon
+      ) {
         return getSchedule;
       }
       return null;

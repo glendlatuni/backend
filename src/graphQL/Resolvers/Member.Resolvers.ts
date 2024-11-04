@@ -10,7 +10,9 @@ interface User {
     Admin: boolean;
   };
   Family: {
-    Rayon: number;
+    Rayon: {
+      rayonNumber: number;
+    }
     FamilyMembers?: {
       Role: string;
       Liturgos: boolean;
@@ -25,7 +27,9 @@ export const MemberResolvers = {
   Query: {
     queryGetMember: async (_: any, _args: any, { user }: { user: User }) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
 
@@ -41,7 +45,9 @@ export const MemberResolvers = {
       { user }: { user: User }
     ) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
 
@@ -57,7 +63,9 @@ export const MemberResolvers = {
       { user }: { user: User }
     ) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
       console.log("User data:", user);
@@ -79,7 +87,9 @@ export const MemberResolvers = {
       { user }: { user: User }
     ) => {
       const {
-        Family: { Rayon },
+        Family: { 
+          Rayon: { rayonNumber: Rayon }, 
+        },
         Role,
       } = user;
       return await MemberServices.serviceGetMemberByKSP(
@@ -97,7 +107,9 @@ export const MemberResolvers = {
         throw new AuthenticationError("You must be logged in to perform this action");
       }
     
-      const { Family: { Rayon }, Role } = user;
+      const { Family: { 
+        Rayon: { rayonNumber: Rayon }, 
+      }, Role } = user;
       
       try {
         const member = await MemberServices.servicesGetMemberByID(id, Rayon, Role === "SUPERUSER");

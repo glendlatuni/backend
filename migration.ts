@@ -5,44 +5,21 @@ const prisma = new PrismaClient();
 async function main() {
 
 try {
-  // Menghitung jumlah total record
-  // const totalMembers = await prisma.members.count();
-
-  // Mengupdate semua record dengan FamilyStatus = true
-  // const result = await prisma.members.updateMany({
-  //   data: {
-  //    MemberStatus: true,
-  //   },
-  // });
 
 
-  const updateParents = await prisma.members.updateMany({
+  const invalidFamilies = await prisma.family.findMany({
     where: {
-      AND: [
-        { MarriageStatus: null },
-        { FamilyPosition: { in: ["Bapak", "Ibu"] } }
+      OR: [
+        { rayonId: null },
+        { kspId: null  },
       ]
-    },
-    data: { MarriageStatus: "Kawin" }
+    }
   });
-  
-  const updateChildren = await prisma.members.updateMany({
-    where: {
-      AND: [
-        { MarriageStatus: null },
-        { FamilyPosition: { in: ["Anak", "Anak 1", "Anak 2", "Anak 3", "anak"] } }
-      ]
-    },
-    data: { MarriageStatus: "Belum Kawin" }
-  });
-  
-return { updateParents, updateChildren };
- 
-
+  console.log('Invalid families:', invalidFamilies);
 
 
 } catch (error) {
-  console.error('Error updating members:', error);
+  console.error('Error:', error);
 } finally {
   await prisma.$disconnect();
 }

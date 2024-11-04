@@ -1,15 +1,21 @@
-import { PrismaClient, Family } from "@prisma/client";
+import { PrismaClient, Family, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 type familyByRayonFilter = {
-  Rayon: number | null;
+  Rayon?: {
+    rayonNumber: number | null;
+  };
 };
 
 function createFamilyByRayonFilter(rayon: number | null): familyByRayonFilter {
-  return {
-    Rayon: rayon,
-  };
+  return rayon !== null
+    ? {
+        Rayon: {
+          rayonNumber: rayon,
+        },
+      }
+    : {};
 }
 
 export class familyServices {
@@ -23,11 +29,38 @@ export class familyServices {
     rayon: number | null,
     isSuperUser: Boolean = false
   ): Promise<Family[]> {
-    const filter = isSuperUser ? {} : { Rayon: rayon };
+    let filter: Prisma.FamilyWhereInput = {};
+
+    if (!isSuperUser && rayon !== null) {
+      filter = {
+        Rayon: {
+          rayonNumber: rayon,
+        },
+      };
+    }
 
     return await prisma.family.findMany({
       where: filter,
+
       include: {
+        Rayon: {
+          select: {
+            id: true,
+            rayonNumber: true,
+            church: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        KSP: {
+          select: {
+            id: true,
+            kspname: true,
+          },
+        },
         FamilyMembers: {
           select: {
             id: true,
@@ -43,16 +76,23 @@ export class familyServices {
     });
   }
 
-
   async serviceGetFamilyPagination(
     rayon: number | null,
     isSuperUser: Boolean = false,
     page: number = 1,
     pageSize: number = 10
   ): Promise<{ data: Family[]; totalCount: number; totalPages: number }> {
-    const filter = isSuperUser ? {} : { Rayon: rayon };
+    let filter: Prisma.FamilyWhereInput = {};
+
+    if (!isSuperUser && rayon !== null) {
+      filter = {
+        Rayon: {
+          rayonNumber: rayon,
+        },
+      };
+    }
     const skip = (page - 1) * pageSize;
-  
+
     const [data, totalCount] = await Promise.all([
       prisma.family.findMany({
         where: filter,
@@ -74,9 +114,9 @@ export class familyServices {
       }),
       prisma.family.count({ where: filter }),
     ]);
-  
+
     const totalPages = Math.ceil(totalCount / pageSize);
-  
+
     return { data, totalCount, totalPages };
   }
 
@@ -89,13 +129,19 @@ export class familyServices {
     const family = await prisma.family.findUnique({
       where: { id },
       include: {
-        FamilyMembers: true,
+        FamilyMembers:true,
+        Rayon: {
+          select: {
+            id: true,
+            rayonNumber: true,
+          },
+        },
       },
     });
     if (!family) {
       throw new Error("Family not found");
     }
-    if (isSuperUser ? {} : family.Rayon === rayon) {
+    if (isSuperUser ? {} : family.Rayon.rayonNumber === rayon) {
       return family;
     }
     return null;
@@ -111,6 +157,8 @@ export class familyServices {
         },
       },
       include: {
+        KSP: true,
+        Rayon: true,
         FamilyMembers: {
           select: {
             id: true,
@@ -133,12 +181,19 @@ export class familyServices {
   ): Promise<Family | null> {
     const family = await prisma.family.findUnique({
       where: { id },
+      include: {
+        Rayon: {
+          select: {
+            rayonNumber: true,
+          },
+        },
+      },
     });
 
     if (!family) {
       throw new Error("Family not found");
     }
-    if (!isSuperUser && family.Rayon !== rayon) {
+    if (!isSuperUser && family.Rayon.rayonNumber !== rayon) {
       throw new Error("You can not perform this update");
     }
 
@@ -184,18 +239,24 @@ export class familyServices {
     rayon: number,
     isSuperUser: Boolean = false
   ): Promise<Family[]> {
-    const filterZone = isSuperUser
-      ? {}
-      : rayon
-      ? createFamilyByRayonFilter(rayon)
-      : {};
+    let filterZone: Prisma.FamilyWhereInput = {};
+
+    if (!isSuperUser && rayon !== null) {
+      filterZone = {
+        Rayon: {
+          rayonNumber: rayon,
+        },
+      };
+    }
     return await prisma.family.findMany({
       where: {
         AND: [
           {
             KSP: {
-              contains: search,
-              mode: "insensitive",
+              kspname: {
+                contains: search,
+                mode: "insensitive",
+              },
             },
           },
           filterZone,

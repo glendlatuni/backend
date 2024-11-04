@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
+import { GraphQLError } from "graphql/error";
 
 
 const prisma = new PrismaClient();
@@ -41,14 +42,22 @@ export async function verifyRefreshToken(token: string) {
   
     if (!refreshTokenRecord || refreshTokenRecord.expiresAt < new Date()) {
       console.error("Invalid or expired refresh token");
-      throw new Error('Invalid or expired refresh token');
+      throw new GraphQLError('expired refresh token', {
+        extensions: {
+          code: 'EXPIRED_REFRESH_TOKEN'
+        }
+      });
     }
   
     try {
       jwt.verify(token, JWT_SECRET);
     } catch (error) {
       console.error("JWT verification failed:", error);
-      throw new Error('Invalid refresh token');
+      throw new GraphQLError('Invalid refresh token', {
+        extensions: {
+          code: 'INVALID_REFRESH_TOKEN'
+        }
+      });
     }
   
     return refreshTokenRecord.user;
