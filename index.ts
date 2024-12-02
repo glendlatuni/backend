@@ -1,45 +1,30 @@
-import { errorHandler } from "./src/utils/errorHandler";
-import express, { Express, Request, Response } from "express";
-
-import familyRoutes from "./src/Routes/FamilyRoutes";
-import memberRoutes from "./src/Routes/MemberRoutes";
-import countRoutes from "./src/Routes/CountRoutes";
-import scheduleRoutes from "./src/Routes/ScheduleRouter";
-
-import cors from "cors";
-const app: Express = express();
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient({
-  log: ["query", "info", "warn", "error"],
-});
+// src/index.ts
+import express from 'express';
+import { ApolloServer } from 'apollo-server-express';
+import { typeDefs } from './src/graphQL/schema';
+import { resolvers } from './src/graphQL/resolvers';
 
 import dotenv from "dotenv";
-
 dotenv.config();
 
-const port = process.env.PORT || 4000;
-
-app.use(cors());
+const app = express();
 
 app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("express + typescript");
+
+
+const server = new ApolloServer({ typeDefs, resolvers });
+
+// Memulai server Apollo
+server.start().then(() => {
+  server.applyMiddleware({ app: app as any  });
+
+ 
+
+
+  // Memulai server Express
+  app.listen({ port: 4000 }, () =>
+    console.log(`Server ready at http://localhost:4000${server.graphqlPath}`)
+  );
 });
 
-app.use("/family", familyRoutes);
-app.use("/member", memberRoutes);
-app.use("/count", countRoutes);
-app.use("/schedule", scheduleRoutes);
-
-app.use(errorHandler);
-
-app.listen(port, () => {
-  console.log(`[server]: Server running at http://localhost:${port}`);
-});
-
-prisma
-  .$connect()
-  .then(() => console.log("Connected to database"))
-  .catch((e) => console.error("Failed to connect to database", e));
